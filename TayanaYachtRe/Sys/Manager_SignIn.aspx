@@ -102,7 +102,6 @@
                                             <img src="assets/images/auth/Logo-small-bottom.png" alt="small-logo.png"/>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                             <!-- end of form -->

@@ -28,7 +28,7 @@
   <link href="css/pagination.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <form id="form1" runat="server" method="post">
+    <form id="form1" runat="server" method="post" >
       <div class="contain">
         <div class="sub">
           <p>

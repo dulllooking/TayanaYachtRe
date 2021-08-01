@@ -17,9 +17,7 @@ namespace TayanaYachtRe.Sys
         protected void Page_Load(object sender, EventArgs e)
         {
             //權限關門判斷 (Cookie)
-            if (!User.Identity.IsAuthenticated) {
-                Response.Redirect("Manager_SignIn.aspx"); //導回登入頁
-            }
+            
             if (!IsPostBack) {
                 ckfinderSetPath();
                 DListModel.DataBind();
@@ -193,7 +191,7 @@ namespace TayanaYachtRe.Sys
 
             //有選檔案才可上傳
             if (FileUpload.HasFile) {
-                //檢查資料夾內有無同名檔案
+                //檢查專案資料夾內有無同名檔案
                 DirectoryInfo directoryInfo = new DirectoryInfo(Server.MapPath("~/Tayanahtml/upload/files/"));
                 foreach (var fileItem in directoryInfo.GetFiles()) {
                     if (fileItem.Name.Equals(fileName)) {

@@ -12,9 +12,9 @@ namespace TayanaYachtRe.Sys
 {
     public partial class company_Manager_Cpage : System.Web.UI.Page
     {
-        //宣告List方便用Add依序添加資料
-        private List<ImagePathV> savePathListV = new List<ImagePathV>();
-        private List<ImagePathH> savePathListH = new List<ImagePathH>();
+        //宣告全域 List<T> 可用 Add 依序添加資料
+        private List<ImageNameV> saveNameListV = new List<ImageNameV>();
+        private List<ImageNameH> saveNameListH = new List<ImageNameH>();
         protected void Page_Load(object sender, EventArgs e)
         {
             //權限關門判斷 (Cookie)
@@ -30,42 +30,6 @@ namespace TayanaYachtRe.Sys
             }
         }
 
-        private void loadCertificatContent()
-        {
-            //1.連線資料庫
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
-            string sql = "SELECT certificatContent FROM Company WHERE id = 1";
-            //3.創建command物件
-            SqlCommand command = new SqlCommand(sql, connection);
-            //取得資料
-            connection.Open();
-            SqlDataReader reader = command.ExecuteReader(); //指標指在BOF(表格之上)
-            if (reader.Read()) {
-                certificatTbox.Text = reader["certificatContent"].ToString();
-            }
-            //資料庫關閉
-            connection.Close();
-        }
-
-        private void loadCkeditorContent()
-        {
-            //1.連線資料庫
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
-            string sql = "SELECT aboutUsHtml FROM Company WHERE id = 1";
-            //3.創建command物件
-            SqlCommand command = new SqlCommand(sql, connection);
-            //取得資料
-            connection.Open();
-            SqlDataReader reader = command.ExecuteReader(); //指標指在BOF(表格之上)
-            if (reader.Read()) {
-                CKEditorControl1.Text = HttpUtility.HtmlDecode(reader["aboutUsHtml"].ToString());
-            }
-            //資料庫關閉
-            connection.Close();
-        }
-
         private void ckfinderSetPath()
         {
             FileBrowser fileBrowser = new FileBrowser();
@@ -73,46 +37,67 @@ namespace TayanaYachtRe.Sys
             fileBrowser.SetupCKEditor(CKEditorControl1);
         }
 
+        private void loadCkeditorContent()
+        {
+            //取得 About Us 頁面 HTML 資料
+            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            string sql = "SELECT aboutUsHtml FROM Company WHERE id = 1";
+            SqlCommand command = new SqlCommand(sql, connection);
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read()) {
+                //渲染畫面
+                CKEditorControl1.Text = HttpUtility.HtmlDecode(reader["aboutUsHtml"].ToString());
+            }
+            connection.Close();
+        }
+
         protected void UploadAboutUsBtn_Click(object sender, EventArgs e)
         {
+            //取得 CKEditorControl 的 HTML 內容
             string aboutUsHtmlStr = HttpUtility.HtmlEncode(CKEditorControl1.Text);
-            //1.連線資料庫
+            //更新 About Us 頁面 HTML 資料
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
             string sql = "UPDATE Company SET aboutUsHtml = @aboutUsHtml WHERE id = 1";
-            //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
             command.Parameters.AddWithValue("@aboutUsHtml", aboutUsHtmlStr);
-            //5.資料庫連線開啟
             connection.Open();
-            //6.執行sql (新增刪除修改)
-            command.ExecuteNonQuery(); //無回傳值
-            //7.資料庫關閉
+            command.ExecuteNonQuery();
             connection.Close();
 
+            //渲染畫面提示
             DateTime nowtime = DateTime.Now;
             UploadAboutUsLab.Visible = true;
             UploadAboutUsLab.Text = "*Upload Success! - " + nowtime.ToString("G");
         }
 
+        private void loadCertificatContent()
+        {
+            //取得 Certificat 頁文字說明資料
+            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            string sql = "SELECT certificatContent FROM Company WHERE id = 1";
+            SqlCommand command = new SqlCommand(sql, connection);
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read()) {
+                //渲染畫面
+                certificatTbox.Text = reader["certificatContent"].ToString();
+            }
+            connection.Close();
+        }
+
         protected void uploadCertificatBtn_Click(object sender, EventArgs e)
         {
-            //1.連線資料庫
+            //更新 Certificat 頁文字說明資料
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
             string sql = "UPDATE Company SET certificatContent = @certificatContent WHERE id = 1";
-            //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
             command.Parameters.AddWithValue("@certificatContent", certificatTbox.Text);
-            //5.資料庫連線開啟
             connection.Open();
-            //6.執行sql (新增刪除修改)
-            command.ExecuteNonQuery(); //無回傳值
-            //7.資料庫關閉
+            command.ExecuteNonQuery();
             connection.Close();
 
+            //渲染畫面提示
             DateTime nowtime = DateTime.Now;
             uploadCertificatLab.Visible = true;
             uploadCertificatLab.Text = "*Upload Success! - " + nowtime.ToString("G");
@@ -133,14 +118,14 @@ namespace TayanaYachtRe.Sys
             if (reader.Read()) {
                 string loadJson = HttpUtility.HtmlDecode(reader["certificatVerticalImgJSON"].ToString());
                 //反序列化JSON格式
-                savePathListV = JsonConvert.DeserializeObject<List<ImagePathV>>(loadJson);
+                saveNameListV = JsonConvert.DeserializeObject<List<ImageNameV>>(loadJson);
             }
             //資料庫關閉
             connection.Close();
             //?.可用來判斷不是Null才執行Count
-            if (savePathListV.Count > 0) {
-                foreach (var item in savePathListV) {
-                    ListItem listItem = new ListItem($"<img src='../Tayanahtml/images/{item.SavePath}' alt='thumbnail' class='img-thumbnail' width='150'/>", item.SavePath);
+            if (saveNameListV.Count > 0) {
+                foreach (var item in saveNameListV) {
+                    ListItem listItem = new ListItem($"<img src='../Tayanahtml/images/{item.SaveName}' alt='thumbnail' class='img-thumbnail' width='150'/>", item.SaveName);
                     RadioButtonListV.Items.Add(listItem);
                 }
             }
@@ -153,24 +138,25 @@ namespace TayanaYachtRe.Sys
                 DelVImageBtn.Visible = false;
                 //添加圖檔資料
                 foreach (HttpPostedFile postedFile in imageUploadV.PostedFiles) {
-                    //需填完整路徑，結尾反斜線如果沒加要用Path.Combine()可自動添加
+                    //檢查專案資料夾內有無同名檔案
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Server.MapPath("~/Tayanahtml/images/"));
                     string savePathStr = Server.MapPath("~/Tayanahtml/images/");
                     string fileName = postedFile.FileName;
-                    if (savePathListV.Count > 0) {
-                        foreach (var item in savePathListV) {
-                            if (item.SavePath.Equals(fileName)) {
+                    if (saveNameListV.Count > 0) {
+                        foreach (var fileItem in directoryInfo.GetFiles()) {
+                            if (fileItem.Name.Equals(fileName)) {
                                 string[] fileNameArr = fileName.Split('.');
                                 fileName = fileNameArr[0] + "(1)." + fileNameArr[1];
                             }
                         }
                         postedFile.SaveAs(savePathStr + "temp" + fileName);
                         //新增每筆JSON資料
-                        savePathListV.Add(new ImagePathV { SavePath = fileName });
+                        saveNameListV.Add(new ImageNameV { SaveName = fileName });
                     }
                     else {
                         postedFile.SaveAs(savePathStr + "temp" + fileName);
                         //新增每筆JSON資料
-                        savePathListV.Add(new ImagePathV { SavePath = fileName });
+                        saveNameListV.Add(new ImageNameV { SaveName = fileName });
                     }
                     //壓縮圖檔
                     var image = NetVips.Image.NewFromFile(savePathStr + "temp" + fileName);
@@ -187,7 +173,7 @@ namespace TayanaYachtRe.Sys
                     File.Delete(savePathStr + "temp" + fileName);
                 }
                 //將List資料轉為Json格式字串
-                string savePathJsonStr = JsonConvert.SerializeObject(savePathListV);
+                string savePathJsonStr = JsonConvert.SerializeObject(saveNameListV);
                 //1.連線資料庫
                 SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
                 //2.sql語法
@@ -208,9 +194,9 @@ namespace TayanaYachtRe.Sys
         }
 
         //JSON資料V
-        public class ImagePathV
+        public class ImageNameV
         {
-            public string SavePath { get; set; }
+            public string SaveName { get; set; }
         }
 
         protected void RadioButtonListV_SelectedIndexChanged(object sender, EventArgs e)
@@ -225,14 +211,14 @@ namespace TayanaYachtRe.Sys
             string savePath = Server.MapPath("~/Tayanahtml/images/");
             savePath += selVImageStr;
             File.Delete(savePath);
-            for (int i = 0; i < savePathListV.Count; i++) {
-                if (savePathListV[i].SavePath.Equals(selVImageStr)) {
-                    savePathListV.RemoveAt(i);
+            for (int i = 0; i < saveNameListV.Count; i++) {
+                if (saveNameListV[i].SaveName.Equals(selVImageStr)) {
+                    saveNameListV.RemoveAt(i);
                 }
             }
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //將List資料轉為Json格式字串
-            string savePathJsonStr = JsonConvert.SerializeObject(savePathListV);
+            string savePathJsonStr = JsonConvert.SerializeObject(saveNameListV);
             //2.sql語法
             string sql = "UPDATE Company SET certificatVerticalImgJSON = @path WHERE id = 1";
             //3.創建command物件
@@ -253,28 +239,34 @@ namespace TayanaYachtRe.Sys
         #endregion
 
         #region Horizontal Image List
+
+        // JSON 資料 Horizontal Image
+        public class ImageNameH
+        {
+            public string SaveName { get; set; }
+        }
+
         private void loadImageHList()
         {
-            //1.連線資料庫
+            //連線資料庫取出資料
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
             string sqlLoad = "SELECT certificatHorizontalImgJSON FROM Company WHERE id = 1";
-            //3.創建command物件
             SqlCommand command = new SqlCommand(sqlLoad, connection);
-            //取得資料
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
-                string loadJson = HttpUtility.HtmlDecode(reader["certificatHorizontalImgJSON"].ToString());
+                string loadJson = reader["certificatHorizontalImgJSON"].ToString();
                 //反序列化JSON格式
-                savePathListH = JsonConvert.DeserializeObject<List<ImagePathH>>(loadJson);
+                saveNameListH = JsonConvert.DeserializeObject<List<ImageNameH>>(loadJson);
             }
-            //資料庫關閉
             connection.Close();
-            //?.可用來判斷不是Null才執行Count
-            if (savePathListH.Count > 0) {
-                foreach (var item in savePathListH) {
-                    ListItem listItem = new ListItem($"<img src='../Tayanahtml/images/{item.SavePath}' alt='thumbnail' class='img-thumbnail' width='230'/>", item.SavePath);
+            //可以改成用 ?.Count 來判斷不是 Null 後才執行 .Count 避免錯誤
+            if (saveNameListH.Count > 0) {
+                //逐一取出 JSON 的每筆資料
+                foreach (var item in saveNameListH) {
+                    //將 RadioButtonList 選項內容改為圖片格式，值設為檔案名稱
+                    ListItem listItem = new ListItem($"<img src='../Tayanahtml/images/{item.SaveName}' alt='thumbnail' class='img-thumbnail' width='230'/>", item.SaveName);
+                    //加入圖片選項
                     RadioButtonListH.Items.Add(listItem);
                 }
             }
@@ -282,108 +274,119 @@ namespace TayanaYachtRe.Sys
 
         protected void UploadHBtn_Click(object sender, EventArgs e)
         {
+            //有選擇檔案才執行
             if (imageUploadH.HasFile) {
+                //先讀取資料庫原有資料
                 loadImageHList();
-                DelHImageBtn.Visible = false;
+                DelHImageBtn.Visible = false; //刪除鈕有選擇圖片時才顯示
+
                 //添加圖檔資料
+                //逐一讀取選擇的圖片檔案
                 foreach (HttpPostedFile postedFile in imageUploadH.PostedFiles) {
-                    //需填完整路徑，結尾反斜線如果沒加要用Path.Combine()可自動添加
+
+                    //儲存圖片檔案及圖片名稱
+                    //檢查專案資料夾內有無同名檔案
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Server.MapPath("~/Tayanahtml/images/"));
                     string savePath = Server.MapPath("~/Tayanahtml/images/");
+                    //取得選取的檔案名稱
                     string fileName = postedFile.FileName;
-                    if (savePathListH.Count > 0) {
-                        foreach (var item in savePathListH) {
-                            if ((item.SavePath.ToString()).Equals(fileName)) {
+                    //與原有資料比對，如果有相同名稱則加入流水號
+                    if (saveNameListH.Count > 0) {
+                        foreach (var fileItem in directoryInfo.GetFiles()) {
+                            if (fileItem.Name.Equals(fileName)) {
                                 string[] fileNameArr = fileName.Split('.');
                                 fileName = fileNameArr[0] + "(1)." + fileNameArr[1];
                             }
                         }
+                        //在圖片名稱前加入 temp 標示並儲存圖片檔案
                         postedFile.SaveAs(savePath + "temp" + fileName);
-                        //新增每筆JSON資料
-                        savePathListH.Add(new ImagePathH { SavePath = fileName });
+                        //新增 JSON 資料
+                        saveNameListH.Add(new ImageNameH { SaveName = fileName });
                     }
                     else {
                         postedFile.SaveAs(savePath + "temp" + fileName);
-                        //新增每筆JSON資料
-                        savePathListH.Add(new ImagePathH { SavePath = fileName });
+                        saveNameListH.Add(new ImageNameH { SaveName = fileName });
                     }
-                    //壓縮圖檔
-                    var image = NetVips.Image.NewFromFile(savePath + "temp" + fileName);
-                    if (image.Width > 214 * 2) {
-                        var newImg = image.Resize(0.5);
+
+                    //使用 NetVips 套件進行壓縮圖檔
+                    //判斷儲存的原始圖片寬度是否大於設定寬度的 2 倍
+                    var img = NetVips.Image.NewFromFile(savePath + "temp" + fileName);
+                    if (img.Width > 214 * 2) {
+                        //產生原使圖片一半大小的新圖片
+                        var newImg = img.Resize(0.5);
+                        //如果新圖片寬度還是大於原始圖片設定寬度的 2 倍就持續縮減
                         while (newImg.Width > 214 * 2) {
                             newImg = newImg.Resize(0.5);
                         }
+                        //儲存正式名稱的新圖片
                         newImg.WriteToFile(savePath + fileName);
                     }
                     else {
                         postedFile.SaveAs(savePath + fileName);
                     }
+                    //刪除原始圖片
                     File.Delete(savePath + "temp" + fileName);
                 }
-                //將List資料轉為Json格式字串
-                string savePathJsonStr = JsonConvert.SerializeObject(savePathListH);
-                //1.連線資料庫
+
+                //更新新增後的圖片名稱 JSON 存入資料庫
+                string fileNameJsonStr = JsonConvert.SerializeObject(saveNameListH);
                 SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-                //2.sql語法
-                string sql = "UPDATE Company SET certificatHorizontalImgJSON = @path WHERE id = 1";
-                //3.創建command物件
+                string sql = "UPDATE Company SET certificatHorizontalImgJSON = @imgName WHERE id = 1";
                 SqlCommand command = new SqlCommand(sql, connection);
-                //4.參數化
-                command.Parameters.AddWithValue("@path", savePathJsonStr);
-                //5.資料庫連線開啟
+                command.Parameters.AddWithValue("@imgName", fileNameJsonStr);
                 connection.Open();
-                //6.執行sql (新增刪除修改)
                 command.ExecuteNonQuery();
-                //7.資料庫關閉
                 connection.Close();
+
+                //渲染畫面
                 RadioButtonListH.Items.Clear();
                 loadImageHList();
             }
         }
 
-        //JSON資料H
-        public class ImagePathH
-        {
-            public string SavePath { get; set; }
-        }
-
         protected void RadioButtonListH_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //顯示刪除按鈕
             DelHImageBtn.Visible = true;
         }
 
         protected void DelHImageBtn_Click(object sender, EventArgs e)
         {
+            //先讀取資料庫原有資料
             loadImageHList();
+            //取得選取項目的值
             string selHImageStr = RadioButtonListH.SelectedValue;
+
+            //刪除圖片檔案
             string savePath = Server.MapPath("~/Tayanahtml/images/");
             savePath += selHImageStr;
             File.Delete(savePath);
-            for (int i = 0; i < savePathListH.Count; i++) {
-                if (savePathListH[i].SavePath.Equals(selHImageStr)) {
-                    savePathListH.RemoveAt(i);
+
+            //逐一比對原始資料 List<saveNameListH> 中的檔案名稱
+            for (int i = 0; i < saveNameListH.Count; i++) {
+                //與刪除的選項相同名稱
+                if (saveNameListH[i].SaveName.Equals(selHImageStr)) {
+                    //移除 List 中同名的資料
+                    saveNameListH.RemoveAt(i);
                 }
             }
+
+            //更新刪除後的圖片名稱 JSON 存入資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //將List資料轉為Json格式字串
-            string savePathJsonStr = JsonConvert.SerializeObject(savePathListH);
-            //2.sql語法
-            string sql = "UPDATE Company SET certificatHorizontalImgJSON = @path WHERE id = 1";
-            //3.創建command物件
+            string saveNameJsonStr = JsonConvert.SerializeObject(saveNameListH);
+            string sql = "UPDATE Company SET certificatHorizontalImgJSON = @imgName WHERE id = 1";
             SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
-            command.Parameters.AddWithValue("@path", savePathJsonStr);
-            //5.資料庫連線開啟
+            command.Parameters.AddWithValue("@imgName", saveNameJsonStr);
             connection.Open();
-            //6.執行sql (新增刪除修改)
             command.ExecuteNonQuery();
-            //7.資料庫關閉
             connection.Close();
+
             //渲染畫面
             RadioButtonListH.Items.Clear();
             loadImageHList();
             DelHImageBtn.Visible = false;
         }
+
         #endregion
 
     }

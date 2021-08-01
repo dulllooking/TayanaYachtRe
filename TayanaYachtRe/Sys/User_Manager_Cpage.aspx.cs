@@ -66,22 +66,24 @@ namespace TayanaYachtRe.Sys
                 
         }
 
-        //Argon2加密
+        // Argon2 加密
+        //產生 Salt 功能
         private byte[] CreateSalt()
         {
             var buffer = new byte[16];
-            var rng = new RNGCryptoServiceProvider();
+            var rng = new RNGCryptoServiceProvider(); // 強亂數產生器
             rng.GetBytes(buffer);
             return buffer;
         }
-
+        // Hash 處理加鹽的密碼功能
         private byte[] HashPassword(string password, byte[] salt)
         {
             var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password));
 
+            //底下這些數字會影響運算時間，而且驗證時要用一樣的值
             argon2.Salt = salt;
-            argon2.DegreeOfParallelism = 8; // four cores
-            argon2.Iterations = 4;
+            argon2.DegreeOfParallelism = 8; // 4 核心就設成 8
+            argon2.Iterations = 4; // 迭代運算次數
             argon2.MemorySize = 1024 * 1024; // 1 GB
 
             return argon2.GetBytes(16);

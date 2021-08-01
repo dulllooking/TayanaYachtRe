@@ -22,10 +22,10 @@
       });
     });
   </script>
-  <link href="UserControl/pagination.css" rel="stylesheet" type="text/css" />
+  <link href="css/pagination.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <form id="form1" runat="server" method="post">
+    <form runat="server" name="aspnetForm" method="post" action="dealers.html" id="aspnetForm">
       <div class="contain">
         <div class="sub">
           <p>
@@ -33,7 +33,7 @@
           </p>
         </div>
         <!--------------------------------選單開始---------------------------------------------------->
-        <div id="logol"><a href="index.aspx"><img src="images/logo001.gif" alt="Tayana" /></a></div>
+        <div id="logol"><a href="index.aspx"><img src="<%= Page.ResolveUrl("images/logo001.gif") %>" alt="Tayana" /></a></div>
         <div class="menu">
           <ul>
             <li class="menuli01"><a href="Yachts_OverView.aspx">Yachts</a></li>
@@ -45,7 +45,7 @@
         </div>
         <!--------------------------------選單開始結束---------------------------------------------------->
         <!--遮罩-->
-        <div class="bannermasks"><img src="images/DEALERS.jpg" alt="&quot;&quot;" width="967" height="371" /></div>
+        <div class="bannermasks"><img src="<%= Page.ResolveUrl("images/DEALERS.jpg") %>" alt="&quot;&quot;" width="967" height="371" /></div>
         <!--遮罩結束-->
         <!--<div id="buttom01"><a href="#"><img src="images/buttom01.gif" alt="next" /></a></div>-->
         <!--小圖開始-->
@@ -77,7 +77,7 @@
         <!--------------------------------換圖開始---------------------------------------------------->
         <div class="banner">
         <ul>
-            <li><img src="images/newbanner.jpg" alt="Tayana Yachts" /></li>
+            <li><img src="../Tayanahtml/images/newbanner.jpg" alt="Tayana Yachts" /></li>
         </ul>
         </div>
         <!--------------------------------換圖結束---------------------------------------------------->
@@ -94,11 +94,14 @@
         <!--------------------------------左邊選單結束---------------------------------------------------->
         <!--------------------------------右邊選單開始---------------------------------------------------->
         <div id="crumb"><a href="index.aspx">Home</a> >> <a href="#">Dealers </a> >> <a href="#"><span
-                class="on1">USA</span></a></div>
+                class="on1">
+            <asp:Label ID="LabLink" runat="server" Text="USA"></asp:Label>
+        </span></a></div>
         <div class="right">
             <div class="right1">
             <div class="title">
-                <span>USA</span></div>
+                <asp:Literal ID="LitTiTle" runat="server"></asp:Literal>
+            </div>
             <!--------------------------------內容開始---------------------------------------------------->
             <div class="box2_list">
                 <ul>
@@ -115,7 +118,7 @@
         <div class="footer">
           <div class="footerp00">
             <a href="http://www.tognews.com/" target="_blank">
-              <p><img src="images/tog.jpg" alt="TOG" /></p>
+              <p><img src="../Tayanahtml/images/tog.jpg" alt="TOG" /></p>
             </a>
             <p class="footerp001">© 1973-2012 Tayana Yachts, Inc. All Rights Reserved</p>
           </div>

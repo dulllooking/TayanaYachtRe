@@ -12,6 +12,11 @@ namespace TayanaYachtRe.Sys
 
         public void ProcessRequest(HttpContext context)
         {
+            //清除Cache，避免登出後按上一頁還會顯示Cache頁面
+            context.Response.Cache.SetExpires(DateTime.UtcNow.AddMinutes(-1));
+            context.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            context.Response.Cache.SetNoStore();
+
             //清除所有的 Session
             if (context.Session != null) {
                 context.Session.Abandon();

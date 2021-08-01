@@ -583,9 +583,9 @@ namespace TayanaYachtRe.Sys
             //取得當月第一天跟最後一天
             DateTime firstDay = DateTime.Now.AddDays(-DateTime.Now.Day + 1);
             DateTime lastDay = DateTime.Now.AddMonths(1).AddDays(-DateTime.Now.AddMonths(1).Day);
-            //取得當月第一天往前一週+當月最後一天往後一週
-            string firstDayLastWeek = firstDay.AddDays(-7).ToString("yyyyMMdd");
-            string lastDayNextWeek = lastDay.AddDays(7).ToString("yyyyMMdd");
+            //取得當月第一天往前6週+當月最後一天往後6週
+            string firstDayLastWeek = firstDay.AddDays(-42).ToString("yyyyMMdd");
+            string lastDayNextWeek = lastDay.AddDays(42).ToString("yyyyMMdd");
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //2.sql語法

@@ -36,10 +36,6 @@ namespace TayanaYachtRe.Sys
                         ManagerMainContentPlaceHolder.Visible = false;
                     }
                 }
-                else {
-                    ManagerMenuContentPlaceHolder.Visible = false;
-                    ManagerMainContentPlaceHolder.Visible = false;
-                }
             }
             
         }

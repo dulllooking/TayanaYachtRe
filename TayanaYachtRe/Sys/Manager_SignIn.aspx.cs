@@ -17,34 +17,34 @@ namespace TayanaYachtRe.Sys
             
         }
 
-        //Argon2加密驗證
-
+        // Argon2 驗證加密密碼
+        // Hash 處理加鹽的密碼功能
         private byte[] HashPassword(string password, byte[] salt)
         {
             var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password));
 
+            //底下這些數字會影響運算時間，而且驗證時要用一樣的值
             argon2.Salt = salt;
-            argon2.DegreeOfParallelism = 8; // four cores
-            argon2.Iterations = 4; 
+            argon2.DegreeOfParallelism = 8; // 4 核心就設成 8
+            argon2.Iterations = 4; // 迭代運算次數
             argon2.MemorySize = 1024 * 1024; // 1 GB
 
             return argon2.GetBytes(16);
         }
-
+        //驗證
         private bool VerifyHash(string password, byte[] salt, byte[] hash)
         {
             var newHash = HashPassword(password, salt);
-            return hash.SequenceEqual(newHash);
+            return hash.SequenceEqual(newHash); // LINEQ
         }
 
         protected void Button1_Click(object sender, EventArgs e)
         {
-            Session["account"] = TextBox1.Text;
             string password = TextBox2.Text;
 
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法 (@參數化避免隱碼攻擊) reader判斷條件設在SQL在資料庫找不到直接報錯
+            //2.sql語法 (@參數化避免隱碼攻擊)
             string sql = $"SELECT * FROM managerData WHERE account = @account";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
@@ -56,7 +56,7 @@ namespace TayanaYachtRe.Sys
             DataTable dataTable = new DataTable();
             //7.將資料放入Table
             dataAdapter.Fill(dataTable);
-            //登入流程管理 (Session 改 Cookie)
+            //登入流程管理 (Cookie)
             if (dataTable.Rows.Count > 0) {
                 //SQL有找到資料時執行
 
@@ -64,10 +64,10 @@ namespace TayanaYachtRe.Sys
                 byte[] hash = Convert.FromBase64String(dataTable.Rows[0]["password"].ToString());
                 byte[] salt = Convert.FromBase64String(dataTable.Rows[0]["salt"].ToString());
                 //驗證密碼
-                var success = VerifyHash(password, salt, hash);
+                bool success = VerifyHash(password, salt, hash);
 
                 if (success) {
-                    //宣告驗證票要夾帶的資料
+                    //宣告驗證票要夾帶的資料 (用;區隔)
                     string userData = dataTable.Rows[0]["maxPower"].ToString() + ";" + dataTable.Rows[0]["account"].ToString() + ";" + dataTable.Rows[0]["name"].ToString() + ";" + dataTable.Rows[0]["email"].ToString();
                     //設定驗證票(夾帶資料，cookie命名) //需額外引入using System.Web.Configuration;
                     SetAuthenTicket(userData, TextBox1.Text);
@@ -95,7 +95,7 @@ namespace TayanaYachtRe.Sys
             }
         }
 
-        //驗證函式
+        //設定驗證票
         private void SetAuthenTicket(string userData, string userId)
         {
             //宣告一個驗證票 //需額外引入using System.Web.Security;

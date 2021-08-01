@@ -11,8 +11,8 @@
     </title>
     <script type="text/javascript" src="Scripts/jquery.min.js"></script>
     <!--[if lt IE 7]>
-  <script type="text/javascript" src="javascript/iepngfix_tilebg.js"></script>
-  <![endif]-->
+    <script type="text/javascript" src="javascript/iepngfix_tilebg.js"></script>
+    <![endif]-->
     <link rel="shortcut icon" href="favicon.ico" />
     <link href="css/homestyle.css" rel="stylesheet" type="text/css" />
     <link href="css/reset.css" rel="stylesheet" type="text/css" />
@@ -152,7 +152,7 @@
                                         <!-- Render recaptcha API script -->
                                         <cc1:RecaptchaApiScript ID="RecaptchaApiScript1" runat="server" />
                                         <!-- Render recaptcha widget -->
-                                        <cc1:RecaptchaWidget ID="Recaptcha1" runat="server" RenderApiScript="False" />
+                                        <cc1:RecaptchaWidget ID="Recaptcha1" runat="server" />
                                         <asp:Label ID="lblMessage" runat="server" Visible="False" ForeColor="Red"></asp:Label>
                                     </td>
                                 </tr>
