@@ -36,7 +36,7 @@ namespace TayanaYachtRe.Tayanahtml
             //跟我們的控制項說一頁有幾筆
             WebUserControl_Page.limit = 6;
             //跟我們控制項說我們是哪一頁要有分頁
-            WebUserControl_Page.targetpage = "new_list.aspx";
+            WebUserControl_Page.targetPage = "new_list.aspx";
             //4.建立計算分頁顯示資料項邏輯 (每一頁是從第幾筆開始到第幾筆結束)
             //計算每個分頁的第幾筆到第幾筆
             var floor = (page - 1) * WebUserControl_Page.limit + 1;
@@ -52,7 +52,7 @@ namespace TayanaYachtRe.Tayanahtml
             connection.Close();
             //7. 將取得的資料筆數設定給頁面參數屬性
             //算出總數以後，把總數給我們的控制項
-            WebUserControl_Page.totalitems = count;
+            WebUserControl_Page.totalItems = count;
             //8. 使用showPageControls()渲染至網頁 (方法於製作控制項時已完成)
             //渲染控制項出來(分頁頁碼),最後的步驟
             WebUserControl_Page.showPageControls();

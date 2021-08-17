@@ -135,7 +135,7 @@ namespace TayanaYachtRe.Sys
         {
             if (imageUploadV.HasFile) {
                 loadImageVList();
-                DelVImageBtn.Visible = false;
+                
                 //添加圖檔資料
                 foreach (HttpPostedFile postedFile in imageUploadV.PostedFiles) {
                     //檢查專案資料夾內有無同名檔案
@@ -188,6 +188,8 @@ namespace TayanaYachtRe.Sys
                 command.ExecuteNonQuery();
                 //7.資料庫關閉
                 connection.Close();
+
+                DelVImageBtn.Visible = false;
                 RadioButtonListV.Items.Clear();
                 loadImageVList();
             }
@@ -261,7 +263,7 @@ namespace TayanaYachtRe.Sys
             }
             connection.Close();
             //可以改成用 ?.Count 來判斷不是 Null 後才執行 .Count 避免錯誤
-            if (saveNameListH.Count > 0) {
+            if (saveNameListH?.Count > 0) {
                 //逐一取出 JSON 的每筆資料
                 foreach (var item in saveNameListH) {
                     //將 RadioButtonList 選項內容改為圖片格式，值設為檔案名稱
@@ -278,7 +280,6 @@ namespace TayanaYachtRe.Sys
             if (imageUploadH.HasFile) {
                 //先讀取資料庫原有資料
                 loadImageHList();
-                DelHImageBtn.Visible = false; //刪除鈕有選擇圖片時才顯示
 
                 //添加圖檔資料
                 //逐一讀取選擇的圖片檔案
@@ -339,6 +340,7 @@ namespace TayanaYachtRe.Sys
                 connection.Close();
 
                 //渲染畫面
+                DelHImageBtn.Visible = false; //刪除鈕有選擇圖片時才顯示
                 RadioButtonListH.Items.Clear();
                 loadImageHList();
             }
@@ -382,9 +384,10 @@ namespace TayanaYachtRe.Sys
             connection.Close();
 
             //渲染畫面
+            DelHImageBtn.Visible = false;
             RadioButtonListH.Items.Clear();
             loadImageHList();
-            DelHImageBtn.Visible = false;
+            
         }
 
         #endregion

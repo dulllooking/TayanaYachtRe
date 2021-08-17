@@ -5,9 +5,9 @@ namespace TayanaYachtRe
 {
     public partial class WebUserControl_Page : System.Web.UI.UserControl
     {
-        public int totalitems { get; set; } //總共幾筆資料
+        public int totalItems { get; set; } //總共幾筆資料
         public int limit { get; set; } //一頁幾筆
-        public string targetpage { get; set; } //作用頁面網址
+        public string targetPage { get; set; } //作用頁面網址
 
         public void showPageControls()
         {
@@ -18,14 +18,14 @@ namespace TayanaYachtRe
                     page = Convert.ToInt16(Request["page"]);
                 }
             }
-            if (totalitems == 0) {
+            if (totalItems == 0) {
                 return;
             }
             if (limit == 0) {
                 return;
             }
-            targetpage = targetpage ?? System.IO.Path.GetFileName(Request.PhysicalPath);
-            litPage.Text = getPaginationString(page, totalitems, limit, 2, targetpage);
+            targetPage = targetPage ?? System.IO.Path.GetFileName(Request.PhysicalPath);
+            litPage.Text = getPaginationString(page, totalItems, limit, 2, targetPage);
         }
 
         #region "判斷是否為數字"
@@ -44,15 +44,15 @@ namespace TayanaYachtRe
         /// 產生分頁控制項
         /// </summary>
         /// <param name="page">目前第幾頁</param>
-        /// <param name="totalitems">共有幾筆</param>
+        /// <param name="totalItems">共有幾筆</param>
         /// <param name="limit">一頁幾筆</param>
         /// <param name="adjacents">不知道，傳2~5都OK</param>
-        /// <param name="targetpage">連結文字，例:pagination.aspx?foo=bar</param>
+        /// <param name="targetPage">連結文字，例:pagination.aspx?foo=bar</param>
         /// <returns></returns>
-        public static string getPaginationString(int page, int totalitems, int limit, int adjacents, string targetpage)
+        public static string getPaginationString(int page, int totalItems, int limit, int adjacents, string targetPage)
         {
             //defaults
-            targetpage = targetpage.IndexOf('?') != -1 ? targetpage + "&" : targetpage + "?";
+            targetPage = targetPage.IndexOf('?') != -1 ? targetPage + "&" : targetPage + "?";
             string margin = "";
             string padding = "";
             //other vars
@@ -60,7 +60,7 @@ namespace TayanaYachtRe
             //previous page is page - 1
             int nextPage = page + 1;
             //nextPage page is page + 1
-            Double value = Convert.ToDouble((decimal)totalitems / limit);
+            Double value = Convert.ToDouble((decimal)totalItems / limit);
             int lastpage = Convert.ToInt16(Math.Ceiling(value));
             //lastpage is = total items / items per page, rounded up.
             int lpm1 = lastpage - 1;
@@ -81,14 +81,14 @@ namespace TayanaYachtRe
                     }
                     paginationBuilder.Append("\"");
                 }
-                paginationBuilder.Append(">共<span style=\"color:red\" >" + totalitems + "</span>筆資料");
+                paginationBuilder.Append(">共<span style=\"color:red\" >" + totalItems + "</span>筆資料");
                 //previous button
-                paginationBuilder.Append(page > 1 ? string.Format("<a href=\"{0}page={1}\">上一頁</a>", targetpage, prev) : "<span class=\"disabled\">上一頁</span>");
+                paginationBuilder.Append(page > 1 ? string.Format("<a href=\"{0}page={1}\">上一頁</a>", targetPage, prev) : "<span class=\"disabled\">上一頁</span>");
                 //pages
                 if (lastpage < 7 + (adjacents * 2)) {
                     //not enough pages to bother breaking it up
                     for (counter = 1; counter <= lastpage; counter++) {
-                        paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, counter));
+                        paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, counter));
                     }
                 }
                 else if (lastpage >= 7 + (adjacents * 2)) {
@@ -96,36 +96,36 @@ namespace TayanaYachtRe
                     //close to beginning only hide later pages
                     if (page < 1 + (adjacents * 3)) {
                         for (counter = 1; counter <= (4 + (adjacents * 2)) - 1; counter++) {
-                            paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, counter));
+                            paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, counter));
                         }
                         paginationBuilder.Append("...");
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, lpm1));
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, lastpage));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, lpm1));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, lastpage));
                     }
                     //in middle hide some front and some back
                     else if (lastpage - (adjacents * 2) > page & page > (adjacents * 2)) {
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page=1\">1</a>", targetpage));
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page=2\">2</a>", targetpage));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page=1\">1</a>", targetPage));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page=2\">2</a>", targetPage));
                         paginationBuilder.Append("...");
                         for (counter = (page - adjacents); counter <= (page + adjacents); counter++) {
-                            paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, counter));
+                            paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, counter));
                         }
                         paginationBuilder.Append("...");
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, lpm1));
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, lastpage));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, lpm1));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, lastpage));
                     }
                     else {
                         //close to end only hide early pages
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page=1\">1</a>", targetpage));
-                        paginationBuilder.Append(string.Format("<a href=\"{0}page=2\">2</a>", targetpage));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page=1\">1</a>", targetPage));
+                        paginationBuilder.Append(string.Format("<a href=\"{0}page=2\">2</a>", targetPage));
                         paginationBuilder.Append("...");
                         for (counter = (lastpage - (1 + (adjacents * 3))); counter <= lastpage; counter++) {
-                            paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetpage, counter));
+                            paginationBuilder.Append(counter == page ? string.Format("<span class=\"current\">{0}</span>", counter) : string.Format("<a href=\"{0}page={1}\">{1}</a>", targetPage, counter));
                         }
                     }
                 }
                 //nextPage button
-                paginationBuilder.Append(page < counter - 1 ? string.Format("<a href=\"{0}page={1}\">下一頁</a>", targetpage, nextPage) : "<span class=\"disabled\">下一頁</span>");
+                paginationBuilder.Append(page < counter - 1 ? string.Format("<a href=\"{0}page={1}\">下一頁</a>", targetPage, nextPage) : "<span class=\"disabled\">下一頁</span>");
                 paginationBuilder.Append("</div>\r\n");
             }
             return paginationBuilder.ToString();

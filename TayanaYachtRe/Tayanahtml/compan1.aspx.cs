@@ -70,16 +70,14 @@ namespace TayanaYachtRe.Tayanahtml
 
         private void loadContentImgH()
         {
+            //會重複添加內容所以用 StringBuilder 效能較好
             StringBuilder ImgHHtml = new StringBuilder();
+            //用 List<T> 來存取 JSON 格式圖片檔名
             List<ImagePathH> savePathListH = new List<ImagePathH>();
-            //取出圖檔資料
-            //1.連線資料庫
+            //從資料庫取出橫式圖檔檔名
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
             string sqlLoad = "SELECT certificatHorizontalImgJSON FROM Company WHERE id = 1";
-            //3.創建command物件
             SqlCommand command = new SqlCommand(sqlLoad, connection);
-            //取得資料
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
@@ -87,9 +85,8 @@ namespace TayanaYachtRe.Tayanahtml
                 //反序列化JSON格式
                 savePathListH = JsonConvert.DeserializeObject<List<ImagePathH>>(loadJson);
             }
-            //資料庫關閉
             connection.Close();
-            //?.可用來判斷不是Null才執行Count
+            // ?. 可用來判斷不是 Null 才執行 Count
             if (savePathListH?.Count > 0) {
                 foreach (var item in savePathListH) {
                     ImgHHtml.Append($"<li><p><img src='images/{item.SaveName}' alt='Tayana ' width='319' height='234' /></p></li>");
@@ -98,7 +95,7 @@ namespace TayanaYachtRe.Tayanahtml
             ContentImgH.Text = ImgHHtml.ToString();
         }
 
-        //JSON資料H
+        // JSON 資料 H 直式
         public class ImagePathH
         {
             public string SaveName { get; set; }
