@@ -118,7 +118,7 @@ namespace TayanaYachtRe.Tayanahtml
             //設定gmail的smtp Server及設定Port
             SmtpClient MySmtp = new SmtpClient("smtp.gmail.com", 587);
             //設定gmail的帳號及16碼應用程式密碼
-            MySmtp.Credentials = new NetworkCredential("dullulysses@gmail.com", "agmfwztvolspzldx");
+            MySmtp.Credentials = new NetworkCredential("dullulysses@gmail.com", "mcymfzopqjeigsdo");
             //開啟ssl加密
             MySmtp.EnableSsl = true;
             //發送郵件

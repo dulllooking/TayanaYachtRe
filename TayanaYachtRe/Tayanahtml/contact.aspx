@@ -27,7 +27,7 @@
     <script type="text/javascript" src='https://www.google.com/recaptcha/api.js?hl=en'></script>
 </head>
 <body>
-    <form runat="server" method="post" name="aspnetForm" action="contact.aspx" id="aspnetForm">
+    <form runat="server" method="post" name="aspnetForm" id="aspnetForm">
         <div class="contain">
             <div class="sub">
                 <p>
