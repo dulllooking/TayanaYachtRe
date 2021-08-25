@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
+using System.Web;
 using System.Web.Configuration;
 using System.Web.UI.WebControls;
 
@@ -11,13 +12,8 @@ namespace TayanaYachtRe.Sys
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            //權限關門判斷 (Cookie)
-            if (!User.Identity.IsAuthenticated) {
-                Response.Redirect("Manager_SignIn.aspx"); //導回登入頁
-            }
             if (!IsPostBack) {
-                DealerList.Visible = false;
-                DropDownList1.DataBind(); //取值
+                DropDownList1.DataBind(); //先綁定取得選取值
                 showDealerList();
             }
         }
@@ -58,10 +54,12 @@ namespace TayanaYachtRe.Sys
 
         private void showDealerList()
         {
-            string selCountryStr = DropDownList1.SelectedValue;
+            //依下拉選單選取國家的值 (id) 取得地區分類
+            string selCountry_id = DropDownList1.SelectedValue;
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = $"SELECT * FROM Dealers WHERE country_ID = {selCountryStr}";
+            string sql = "SELECT area FROM Dealers WHERE country_ID = @selCountry_id";
             SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@selCountry_id", selCountry_id);
             //取得地區分類
             connection.Open();
             SqlDataReader readerCountry = command.ExecuteReader();
@@ -79,7 +77,7 @@ namespace TayanaYachtRe.Sys
         protected void BtnAddArea_Click(object sender, EventArgs e)
         {
             //取得下拉選單國家的值 (id)
-            string selCountryStr = DropDownList1.SelectedValue;
+            string selCountry_id = DropDownList1.SelectedValue;
             //取得輸入欄內的文字
             string areaStr = TBoxAddArea.Text;
             //判斷是否重複用
@@ -87,8 +85,9 @@ namespace TayanaYachtRe.Sys
 
             //取得地區分類
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = $"SELECT * FROM Dealers WHERE country_ID = {selCountryStr}";
+            string sql = $"SELECT area FROM Dealers WHERE country_ID = @selCountry_id";
             SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@selCountry_id", selCountry_id);
             connection.Open();
             SqlDataReader readerCountry = command.ExecuteReader();
             while (readerCountry.Read()) {
@@ -107,10 +106,10 @@ namespace TayanaYachtRe.Sys
             if (!isRepeat) {
                 TBoxAddArea.ForeColor = Color.Black;
                 //新增區域
-                string sql2 = "INSERT INTO Dealers (country_ID, area) VALUES(@countryID, @area)";
+                string sql2 = "INSERT INTO Dealers (country_ID, area) VALUES(@selCountry_id, @areaStr)";
                 SqlCommand command2 = new SqlCommand(sql2, connection);
-                command2.Parameters.AddWithValue("@countryID", selCountryStr);
-                command2.Parameters.AddWithValue("@area", areaStr);
+                command2.Parameters.AddWithValue("@selCountry_id", selCountry_id);
+                command2.Parameters.AddWithValue("@areaStr", areaStr);
                 connection.Open();
                 command2.ExecuteNonQuery();
                 connection.Close();
@@ -131,29 +130,28 @@ namespace TayanaYachtRe.Sys
         protected void BtnDelArea_Click(object sender, EventArgs e)
         {
             //取得選取資料的值
-            string selCountryStr = RadioButtonList1.SelectedValue;
+            string selAreaStr = RadioButtonList1.SelectedValue;
             
             //刪除實際圖檔檔案
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = "SELECT dealerImgPath FROM Dealers WHERE area = @name";
+            string sql = "SELECT dealerImgPath FROM Dealers WHERE area = @selAreaStr";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@name", selCountryStr);
+            command.Parameters.AddWithValue("@selAreaStr", selAreaStr);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
                 string imgPath = reader["dealerImgPath"].ToString();
                 if (!imgPath.Equals("")) {
-                    string savePath = Server.MapPath("~/Tayanahtml/");
-                    savePath += imgPath;
+                    string savePath = Server.MapPath($"~/Tayanahtml/upload/Images/{imgPath}");
                     File.Delete(savePath);
                 }
             }
             connection.Close();
 
             //刪除資料庫該筆資料
-            string sqlDel = "DELETE FROM Dealers WHERE area = @name";
+            string sqlDel = "DELETE FROM Dealers WHERE area = @selAreaStr";
             SqlCommand commandDel = new SqlCommand(sqlDel, connection);
-            commandDel.Parameters.AddWithValue("@name", selCountryStr);
+            commandDel.Parameters.AddWithValue("@selAreaStr", selAreaStr);
             connection.Open();
             commandDel.ExecuteNonQuery();
             connection.Close();
@@ -178,44 +176,54 @@ namespace TayanaYachtRe.Sys
             if (FileUpload1.HasFile) {
                 //取得選擇區域名稱
                 string selAreaStr = RadioButtonList1.SelectedValue;
-                //取得選取檔案名稱
-                string fileName = FileUpload1.FileName;
 
                 //先執行刪除舊圖檔
                 SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-                string sqlDel = "SELECT dealerImgPath FROM Dealers WHERE area = @area";
+                string sqlDel = "SELECT dealerImgPath FROM Dealers WHERE area = @selAreaStr";
                 SqlCommand commandDel = new SqlCommand(sqlDel, connection);
-                commandDel.Parameters.AddWithValue("@area", selAreaStr);
+                commandDel.Parameters.AddWithValue("@selAreaStr", selAreaStr);
                 connection.Open();
                 SqlDataReader reader = commandDel.ExecuteReader();
                 if (reader.Read()) {
                     string delFileName = reader["dealerImgPath"].ToString();
                     //有舊圖才執行刪除
-                    if (!delFileName.Equals("")) {
-                        string delPath = Server.MapPath("~/Tayanahtml/");
-                        delPath += delFileName;
-                        File.Delete(delPath);
+                    if (!String.IsNullOrEmpty(delFileName)) {
+                        File.Delete(savePath + delFileName);
                     }
                 }
                 connection.Close();
 
-                //存圖檔
-                savePath += fileName;
-                FileUpload1.SaveAs(savePath);
+                //儲存圖片檔案及圖片名稱
+                //檢查專案資料夾內有無同名檔案，有同名就加流水號
+                DirectoryInfo directoryInfo = new DirectoryInfo(savePath);
+                //取得選取檔案名稱
+                string fileName = FileUpload1.FileName;
+                string[] fileNameArr = fileName.Split('.');
+                int count = 0;
+                foreach (var fileItem in directoryInfo.GetFiles()) {
+                    if (fileItem.Name.Contains(fileNameArr[0])) {
+                        count++;
+                    }
+                }
+                fileName = fileNameArr[0] + $"({count + 1})." + fileNameArr[1];
+                FileUpload1.SaveAs(savePath + fileName);
+
+                //渲染畫面
+                DateTime nowtime = DateTime.Now;
                 LabUploadImg.Visible = true;
                 LabUploadImg.ForeColor = Color.Green;
-                LabUploadImg.Text = "*Upload Success!";
+                LabUploadImg.Text = "*Upload Success! - " + nowtime.ToString("G");
 
                 //更新資料庫資料
-                string sql = "UPDATE Dealers SET dealerImgPath = @path WHERE area = @area";
+                string sql = "UPDATE Dealers SET dealerImgPath = @fileName WHERE area = @selAreaStr";
                 SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@path", $"upload/Images/{fileName}");
-                command.Parameters.AddWithValue("@area", selAreaStr);
+                command.Parameters.AddWithValue("@fileName", fileName);
+                command.Parameters.AddWithValue("@selAreaStr", selAreaStr);
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
 
-                //畫面渲染
+                //渲染畫面
                 showDealerListTable();
             }
             else {
@@ -242,25 +250,24 @@ namespace TayanaYachtRe.Sys
         {
             //當區域選取時才顯示代理商資料表
             DealerList.Visible = true;
-            //放入國家
+            //放入國家顯示文字
             TBoxCountry.Text = DropDownList1.SelectedItem.Text;
             //放入區域
             TBoxArea.Text = RadioButtonList1.SelectedValue;
 
             //依選取區域的值連接資料庫取得資料
-            string areaStr = RadioButtonList1.SelectedValue;
+            string selAreaStr = RadioButtonList1.SelectedValue;
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = $"SELECT * FROM Dealers WHERE area = @area";
+            string sql = $"SELECT * FROM Dealers WHERE area = @selAreaStr";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@area", areaStr);
+            command.Parameters.AddWithValue("@selAreaStr", selAreaStr);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             //放入個別資料
             while (reader.Read()) {
-                string savePath = "~/Tayanahtml/" + reader["dealerImgPath"].ToString();
-                Thumbnail.ImageUrl = savePath;
-                string[] imgPathArr = reader["dealerImgPath"].ToString().Split('/');
-                TBoxImage.Text = imgPathArr[imgPathArr.Length - 1];
+                string savePath = reader["dealerImgPath"].ToString();
+                LiteralImg.Text = $"<img alt='Thumbnail Image' src='/Tayanahtml/upload/Images/{savePath}' Width='209px'/>";
+                TBoxImage.Text = reader["dealerImgPath"].ToString();
                 TBoxName.Text = reader["name"].ToString();
                 TBoxContact.Text = reader["contact"].ToString();
                 TBoxAddress.Text = reader["address"].ToString();
@@ -277,25 +284,28 @@ namespace TayanaYachtRe.Sys
         {
             //依國家及選取區域的值連接資料庫取得資料
             string selAreaStr = RadioButtonList1.SelectedValue;
-            string selCountryStr = DropDownList1.SelectedValue;
+            string selCountry_id = DropDownList1.SelectedValue;
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = $"UPDATE Dealers SET name=@name, contact=@ccontact, address=@address, tel=@tel, fax=@fax, email=@email, link=@link WHERE country_ID=@country_ID AND area = @area";
+            string sql = $"UPDATE Dealers SET name=@name, contact=@contact, address=@address, tel=@tel, fax=@fax, email=@email, link=@link WHERE country_ID=@selCountry_id AND area = @selAreaStr";
             SqlCommand command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@name", TBoxName.Text);
-            command.Parameters.AddWithValue("@ccontact", TBoxContact.Text);
+            command.Parameters.AddWithValue("@contact", TBoxContact.Text);
             command.Parameters.AddWithValue("@address", TBoxAddress.Text);
             command.Parameters.AddWithValue("@tel", TBoxTel.Text);
             command.Parameters.AddWithValue("@fax", TBoxFax.Text);
             command.Parameters.AddWithValue("@email", TBoxEmail.Text);
             command.Parameters.AddWithValue("@link", TBoxLink.Text);
-            command.Parameters.AddWithValue("@country_ID", selCountryStr);
-            command.Parameters.AddWithValue("@area", selAreaStr);
+            command.Parameters.AddWithValue("@selCountry_id", selCountry_id);
+            command.Parameters.AddWithValue("@selAreaStr", selAreaStr);
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();
 
-            //上傳成功提示
+            //渲染上傳成功提示
+            DateTime nowtime = DateTime.Now;
             UpdateDealerListLab.Visible = true;
+            UpdateDealerListLab.Text = "*Upload Success! - " + nowtime.ToString("G");
+            Page.SetFocus(UpdateDealerListLab);
         }
 
         protected void DeltedCountry(object sender, EventArgs e)

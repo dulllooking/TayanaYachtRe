@@ -105,13 +105,13 @@ namespace TayanaYachtRe.Sys
         protected global::System.Web.UI.WebControls.Button BtnAddDetail;
 
         /// <summary>
-        /// RadioButtonListD 控制項。
+        /// RadioButtonListDetail 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonListD;
+        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonListDetail;
 
         /// <summary>
         /// BtnDelDetail 控制項。

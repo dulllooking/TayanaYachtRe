@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="Specification_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.Specification_Manager_Cpage" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="Specification_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.Specification_Manager_Cpage" MaintainScrollPositionOnPostback="True" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <title>Specification Manager</title>
@@ -9,7 +9,7 @@
 <!-- Layout Start -->
 <div class="page-body">
     <div class="row">
-        <div class="col-md-12 col-xl-4" runat="server">
+        <div class="col-md-12 col-xl-4">
             <div class="card project-task">
                 <div class="card-header">
                     <div class="card-header-left ">
@@ -28,8 +28,8 @@
                 <div class="card-block p-b-10">
                     <div class="table-responsive">
                         <h6>Yacht Model :</h6>
-                        <asp:DropDownList ID="DListModel" runat="server" DataSourceID="SqlDataSource1" DataTextField="yachtModel" DataValueField="yachtModel" AutoPostBack="True" Width="100%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DListModel_SelectedIndexChanged"></asp:DropDownList>
-                        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [yachtModel] FROM [Yachts]"></asp:SqlDataSource>
+                        <asp:DropDownList ID="DListModel" runat="server" DataSourceID="SqlDataSource1" DataTextField="yachtModel" DataValueField="id" AutoPostBack="True" Width="100%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DListModel_SelectedIndexChanged"></asp:DropDownList>
+                        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [yachtModel], [id] FROM [Yachts]"></asp:SqlDataSource>
                         <hr />
                         <h6>Layout & Deck Plan Image :</h6>
                         <h6><span class="badge badge-pill badge-warning text-dark">* The maximum upload size at once is 10MB !</span></h6>
@@ -67,16 +67,16 @@
                 <div class="card-block p-b-10">
                     <div class="table-responsive">
                         <h6>Detail Title :</h6>
-                        <asp:DropDownList ID="DListDetailTitle" runat="server" DataSourceID="SqlDataSource2" DataTextField="detailTitleSort" DataValueField="detailTitleSort" AutoPostBack="True" Width="100%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DListDetailTitle_SelectedIndexChanged"></asp:DropDownList>
-                        <asp:SqlDataSource ID="SqlDataSource2" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [detailTitleSort] FROM [DetailTitleSort]"></asp:SqlDataSource>
+                        <asp:DropDownList ID="DListDetailTitle" runat="server" DataSourceID="SqlDataSource2" DataTextField="detailTitleSort" DataValueField="id" AutoPostBack="True" Width="100%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DListDetailTitle_SelectedIndexChanged"></asp:DropDownList>
+                        <asp:SqlDataSource ID="SqlDataSource2" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [detailTitleSort], [id] FROM [DetailTitleSort]"></asp:SqlDataSource>
                         <hr />
                         <h6>Add Detail :</h6>
                         <asp:TextBox ID="TboxDetail" runat="server" type="text" class="form-control" placeholder="Enter detail text" TextMode="MultiLine" Height="100px"></asp:TextBox>
                         <asp:Button ID="BtnAddDetail" runat="server" Text="Add Detail" class="btn btn-outline-primary btn-block mt-3" OnClick="BtnAddDetail_Click"/>
                         <hr />
                         <h6>Detail List :</h6>
-                        <asp:RadioButtonList ID="RadioButtonListD" runat="server" class="my-3 mx-auto" AutoPostBack="True" RepeatDirection="Vertical" OnSelectedIndexChanged="RadioButtonListD_SelectedIndexChanged" Width="100%"></asp:RadioButtonList>
-                        <asp:Button ID="BtnDelDetail" runat="server" Text="Delete Image" type="button" class="btn btn-danger btn-sm" OnClientClick="return confirm('Are you sure you want to delete？')" Visible="False" OnClick="BtnDelDetail_Click"/>
+                        <asp:RadioButtonList ID="RadioButtonListDetail" runat="server" class="my-3 mx-auto" AutoPostBack="True" RepeatDirection="Vertical" OnSelectedIndexChanged="RadioButtonListD_SelectedIndexChanged" Width="100%"></asp:RadioButtonList>
+                        <asp:Button ID="BtnDelDetail" runat="server" Text="Delete Detail" type="button" class="btn btn-danger btn-sm" OnClientClick="return confirm('Are you sure you want to delete？')" Visible="False" OnClick="BtnDelDetail_Click"/>
                     </div>
                 </div>
             </div>
@@ -109,7 +109,7 @@
                 <div class="card-block p-b-10">
                     <div class="table-responsive">
                         <hr />
-                        <h6>Add Title :</h6>
+                        <h6>Add New Title :</h6>
                         <div class="input-group mb-3">
                           <asp:TextBox ID="TBoxAddNewTitle" runat="server" type="text" class="form-control" placeholder="Enter new title" ></asp:TextBox>
                           <div class="input-group-append">
@@ -141,7 +141,7 @@
                 </div>
                 <div class="card-block p-b-10">
                     <div class="table-responsive text-center">
-                        <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" DataKeyNames="id" DataSourceID="SqlDataSource3" BackColor="White" BorderColor="#CCCCCC" BorderStyle="None" BorderWidth="1px" CellPadding="3" Width="100%" OnRowDeleted="DeltedTitle">
+                        <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" DataKeyNames="id" DataSourceID="SqlDataSource3" BackColor="White" BorderColor="#CCCCCC" BorderStyle="None" BorderWidth="1px" CellPadding="3" Width="100%" OnRowDeleted="DeltedTitle" OnRowUpdated="UpdatedTitle" >
                             <Columns>
                                 <asp:CommandField ButtonType="Button" CancelText="Cancel" DeleteText="Delete" EditText="Edit" HeaderText="Edit" InsertText="Insert" NewText="New" SelectText="Select" ShowEditButton="True"  ControlStyle-CssClass='btn btn-primary btn-block' ControlStyle-BorderColor="#66CCFF" ControlStyle-BorderStyle="Solid" ControlStyle-BorderWidth="1px" ControlStyle-ForeColor="White" >
                                 <ControlStyle BorderColor="#66CCFF" BorderWidth="1px" BorderStyle="Solid" CssClass="btn btn-primary btn-block" ForeColor="White"></ControlStyle>

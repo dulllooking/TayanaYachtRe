@@ -20,33 +20,29 @@ namespace TayanaYachtRe.Tayanahtml
         {
             List<ImagePath> savePathList = new List<ImagePath>();
             string guidStr = Request.QueryString["id"];
+            //如果沒有網址傳值就導回新聞列表頁
             if (String.IsNullOrEmpty(guidStr)) {
                 Response.Redirect("~/Tayanahtml/new_list.aspx");
             }
-            //1.連線資料庫
+            //依取得 guid 連線資料庫取得新聞資料
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
             string sql = "SELECT * FROM News WHERE guid = @guid";
-            //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
-            //4.放入參數化資料
             command.Parameters.AddWithValue("@guid", guidStr.Trim());
-            //讀出一筆資料寫入控制器 (.Read()一次會跑一筆)
-            //.Read()=>指針往下一移並回傳bool，如果要讀全部可用while //最後一筆之後是EOF
-            //取得News
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
-                ctl00_ContentPlaceHolder1_title.InnerText = reader["headline"].ToString();
+                //渲染新聞標題
+                newsTitle.InnerText = reader["headline"].ToString();
+                //渲染新聞主文
                 newsContent.Text = HttpUtility.HtmlDecode(reader["newsContentHtml"].ToString());
                 string loadJson = HttpUtility.HtmlDecode(reader["newsImageJson"].ToString());
                 //反序列化JSON格式
                 savePathList = JsonConvert.DeserializeObject<List<ImagePath>>(loadJson);
             }
-            //資料庫關閉
             connection.Close();
-            //?.可用來判斷不是Null才執行Count
-            if (savePathList.Count > 0) {
+            //渲染新聞組圖
+            if (savePathList?.Count > 0) {
                 string imgHtmlStr = "";
                 foreach (var item in savePathList) {
                     imgHtmlStr += $"<p><img alt='Image' src='upload/Images/{item.SavePath}' style='width: 700px;' /></p>";
@@ -55,7 +51,7 @@ namespace TayanaYachtRe.Tayanahtml
             }
         }
 
-        //JSON資料
+        //用來接收組圖JSON資料
         public class ImagePath
         {
             public string SavePath { get; set; }

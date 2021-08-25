@@ -30,16 +30,17 @@
                 </div>
                 <div class="card-block p-b-10">
                     <div class="table-responsive">
-                        <h6>Yacht Model :</h6>
-                        <asp:DropDownList ID="DListModel" runat="server" DataSourceID="SqlDataSource1" DataTextField="yachtModel" DataValueField="yachtModel" AutoPostBack="True" Width="100%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DListModel_SelectedIndexChanged" ></asp:DropDownList>
-                        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [yachtModel] FROM [Yachts]"></asp:SqlDataSource>
+                        <h6>YachYacht Model :</h6>
+                        <asp:DropDownList ID="DListModel" runat="server" DataSourceID="SqlDataSource1" DataTextField="yachtModel" DataValueField="id" AutoPostBack="True" Width="100%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DListModel_SelectedIndexChanged" ></asp:DropDownList>
+                        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [yachtModel], [id] FROM [Yachts]"></asp:SqlDataSource>
                         <hr />
                         <h6>Dimensions Image :</h6>
-                        <asp:Image ID="DimensionsImg" runat="server" alt="Dimensions Image" class="img-thumbnail rounded mx-auto d-block" Width="250px" />
+                        <asp:Literal ID="LiteralDimImg" runat="server"></asp:Literal>
                         <div class="input-group my-3">
                             <asp:FileUpload ID="DimImgUpload" runat="server" class="btn btn-outline-primary btn-block" />
                             <asp:Button ID="BtnUploadDimImg" runat="server" Text="Upload" class="btn btn-primary" OnClick="BtnUploadDimImg_Click" />
                         </div>
+                        <span class="badge badge-pill badge-warning text-dark">*Upload by No Choose File Could Clean File!</span>
                         <hr />
                         <h6>Downloads File :</h6>
                         <asp:Literal ID="PDFpreview" runat="server" ></asp:Literal>
@@ -47,6 +48,7 @@
                             <asp:FileUpload ID="FileUpload" runat="server" class="btn btn-outline-primary btn-block" />
                             <asp:Button ID="BtnUploadFile" runat="server" Text="Upload" class="btn btn-primary" OnClick="BtnUploadFile_Click" />
                         </div>
+                        <span class="badge badge-pill badge-warning text-dark">*Upload by No Choose File Could Clean File!</span>
                     </div>
                 </div>
             </div>
@@ -75,7 +77,7 @@
                         <h6>Dimensions Text :</h6>
                         <table class="table table-hover">
                             <thead>
-                                <tr>
+                                <tr class="table-info">
                                     <th>Item<asp:Button ID="AddRow" runat="server" Text="Add Row" class="btn btn-outline-primary btn-sm py-0 px-1 align-top mx-5" OnClick="AddRow_Click" /></th>
                                     <th>Value<asp:Button ID="DeleteRow" runat="server" Text="Delete" class="btn btn-outline-danger btn-sm py-0 px-1 align-top mx-5" OnClick="DeleteRow_Click" /></th>
                                 </tr>
@@ -83,43 +85,43 @@
                             <tbody>
                                 <asp:Literal ID="LitDimensionsHtml" runat="server"></asp:Literal>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Dimensions Image</p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxDimImg" runat="server" type="text" class="form-control" ReadOnly="True"></asp:TextBox>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Downloads Title</p>
-                                    </td>
-                                    <td>
+                                    </th>
+                                    <td class="table-info">
                                         <asp:TextBox ID="TBoxDLTitle" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Downloads File</p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxDLFile" runat="server" type="text" class="form-control" ReadOnly="True"></asp:TextBox>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Video URL</p>
-                                    </td>
-                                    <td>
+                                    </th>
+                                    <td class="table-info">
                                         <asp:TextBox ID="TBoxVideo" runat="server" type="text" class="form-control" TextMode="Url"></asp:TextBox>
                                     </td>
                                 </tr>
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td>
-                                        <asp:Label ID="LabUpdateTitle" runat="server" Text="Click for Update" class="font-weight-bold"></asp:Label>
-                                    </td>
+                                    <th>
+                                        <asp:Label ID="LabUpdateTitle" runat="server" Text="Click for Update"></asp:Label>
+                                    </th>
                                     <td>
                                         <asp:Button ID="BtnUpdateDimensionsList" runat="server" Text="Update Dimensions List" class="btn btn-outline-primary btn-block" OnClick="BtnUpdateDimensionsList_Click" />
                                         <asp:Label ID="LabUpdateDimensionsList" runat="server" Text="*Upload Success!" ForeColor="green" class="d-flex justify-content-center" Visible="False"></asp:Label>

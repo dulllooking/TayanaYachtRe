@@ -12,7 +12,10 @@ namespace TayanaYachtRe.Sys
             Response.Cache.SetExpires(DateTime.UtcNow.AddMinutes(-1));
             Response.Cache.SetCacheability(HttpCacheability.NoCache);
             Response.Cache.SetNoStore();
+        }
 
+        protected void Page_Load(object sender, EventArgs e)
+        {
             //權限關門判斷 (Cookie)
             if (!HttpContext.Current.User.Identity.IsAuthenticated) {
                 Response.Redirect("Manager_SignIn.aspx"); //導回登入頁
@@ -25,7 +28,7 @@ namespace TayanaYachtRe.Sys
                 //依管理權限導頁
                 if (haveRight) {
                     if (ticketUserDataArr[0].Equals("True")) {
-                        //以驗證票夾帶資料作為限制
+                        //以驗證票夾帶資料作為限制，最高權限者使用時顯示使用者管理頁並切換圖示
                         ManagerMenuContentPlaceHolder.Visible = true;
                         ManagerMainContentPlaceHolder.Visible = true;
                         ImageHead.ImageUrl = "assets/images/avatar-4.png";
@@ -35,20 +38,11 @@ namespace TayanaYachtRe.Sys
                         ManagerMenuContentPlaceHolder.Visible = false;
                         ManagerMainContentPlaceHolder.Visible = false;
                     }
+                    //載入使用者個人基本資料
+                    LabMenuAccount.Text = ticketUserDataArr[1];
+                    LabMenuEmail.Text = ticketUserDataArr[3];
+                    LabHeadUserName.Text = ticketUserDataArr[2];
                 }
-            }
-            
-        }
-
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            if (!IsPostBack) {
-                string ticketUserData = ((FormsIdentity)(HttpContext.Current.User.Identity)).Ticket.UserData;
-                string[] ticketUserDataArr = ticketUserData.Split(';');
-
-                LabMenuAccount.Text = ticketUserDataArr[1];
-                LabMenuEmail.Text = ticketUserDataArr[3];
-                LabHeadUserName.Text = ticketUserDataArr[2];
             }
         }
     }

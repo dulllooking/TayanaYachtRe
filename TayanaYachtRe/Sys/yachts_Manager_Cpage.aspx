@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="yachts_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.yachts_Manager_Cpage" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="yachts_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.yachts_Manager_Cpage" MaintainScrollPositionOnPostback="True" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <title>Yacht Model Manager</title>
@@ -28,18 +28,18 @@
                 <div class="card-block p-b-10">
                     <div class="table-responsive">
                         <div class="input-group my-3">
-                            <asp:DropDownList ID="DropDownList1" runat="server" AutoPostBack="True" DataSourceID="SqlDataSource1" DataTextField="yachtModel" DataValueField="yachtModel" Width="50%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DropDownList1_SelectedIndexChanged"></asp:DropDownList>
-                            <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [yachtModel] FROM [Yachts]"></asp:SqlDataSource>
-                            <asp:FileUpload ID="imageUploadH" runat="server" class="btn btn-outline-primary btn-block" AllowMultiple="True" />
-                            <asp:Button ID="UploadHBtn" runat="server" Text="Upload" class="btn btn-primary" OnClick="UploadHBtn_Click" />
+                            <asp:DropDownList ID="DropDownList1" runat="server" AutoPostBack="True" DataSourceID="SqlDataSource1" DataTextField="yachtModel" DataValueField="id" Width="50%" Font-Bold="True" class="btn btn-outline-primary dropdown-toggle" OnSelectedIndexChanged="DropDownList1_SelectedIndexChanged"></asp:DropDownList>
+                            <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [yachtModel], [id] FROM [Yachts]"></asp:SqlDataSource>
+                            <asp:FileUpload ID="imageUpload" runat="server" class="btn btn-outline-primary btn-block" AllowMultiple="True" />
+                            <asp:Button ID="UploadBtn" runat="server" Text="Upload" class="btn btn-primary" OnClick="UploadBtn_Click" />
                         </div>
                         <hr />
                         <h6>Banner Image List :</h6>
-                        <h6><span class="badge badge-pill badge-info text-dark">* The first image will be the home page banner !</span></h6>
+                        <h6><span class="badge badge-pill badge-success text-dark">* The first image will be the home page banner !</span></h6>
                         <h6>Step1. To upload one image to be the home page banner.</h6>
                         <h6>Step2. Then upload other images.</h6>
-                        <asp:RadioButtonList ID="RadioButtonListH" runat="server" class="my-3 mx-auto" AutoPostBack="True" CellPadding="10" RepeatColumns="5" RepeatDirection="Horizontal" OnSelectedIndexChanged="RadioButtonListH_SelectedIndexChanged" ></asp:RadioButtonList>
-                        <asp:Button ID="DelHImageBtn" runat="server" Text="Delete Image" type="button" class="btn btn-danger btn-sm" OnClientClick="return confirm('Are you sure you want to delete？')" Visible="False" OnClick="DelHImageBtn_Click" />
+                        <asp:RadioButtonList ID="RadioButtonList" runat="server" class="my-3 mx-auto" AutoPostBack="True" CellPadding="10" RepeatColumns="5" RepeatDirection="Horizontal" OnSelectedIndexChanged="RadioButtonListH_SelectedIndexChanged" ></asp:RadioButtonList>
+                        <asp:Button ID="DelImageBtn" runat="server" Text="Delete Image" type="button" class="btn btn-danger btn-sm" OnClientClick="return confirm('Are you sure you want to delete？')" Visible="False" OnClick="DelHImageBtn_Click" />
                     </div>
                 </div>
             </div>

@@ -14,7 +14,7 @@
         $(function () {
             // 先取得 #abgne-block-20110111 , 必要參數及輪播間隔
             var $block = $('#abgne-block-20110111'),
-                timrt, speed = 4000;
+                timer, speed = 4000;
             // 幫 #abgne-block-20110111 .title ul li 加上 hover() 事件
             var $li = $('.title ul li', $block).hover(function () {
                 // 當滑鼠移上時加上 .over 樣式
@@ -145,7 +145,7 @@
                             <!--TOP標籤結束-->
                             <div class="news02p1">
                                 <p class="news02p1img">
-                                    <asp:Image ID="ImgNews1" runat="server" style="border-width:0px;"/>
+                                    <asp:Literal ID="LiteralNewsImg1" runat="server"></asp:Literal>
                                 </p>
                             </div>
                             <p class="news02p2">
@@ -167,7 +167,7 @@
                             <!--TOP標籤結束-->
                             <div class="news02p1">
                                 <p class="news02p1img">
-                                    <asp:Image ID="ImgNews2" runat="server" style="border-width:0px;"/>
+                                    <asp:Literal ID="LiteralNewsImg2" runat="server"></asp:Literal>
                                 </p>
                             </div>
                             <p class="news02p2">
@@ -189,7 +189,7 @@
                             <!--TOP標籤結束-->
                             <div class="news02p1">
                                 <p class="news02p1img">
-                                    <asp:Image ID="ImgNews3" runat="server" style="border-width:0px;"/>
+                                    <asp:Literal ID="LiteralNewsImg3" runat="server"></asp:Literal>
                                 </p>
                             </div>
                             <p class="news02p2">

@@ -23,7 +23,6 @@
             });
         });
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMMhz3zbCdt7YNP2AQB9dXbKESYEGfbfg&callback=initMap" type="text/javascript"></script>
     <script type="text/javascript" src='https://www.google.com/recaptcha/api.js?hl=en'></script>
 </head>
 <body>
@@ -128,7 +127,8 @@
                                 <tr>
                                     <td class="from01td01">Country :</td>
                                     <td><span>*</span>
-                                        <asp:DropDownList name="Country" id="Country" runat="server" DataTextField="country" DataValueField="country"></asp:DropDownList>
+                                        <asp:DropDownList name="Country" id="Country" runat="server" DataTextField="countrySort" DataValueField="countrySort" DataSourceID="SqlDataSource1"></asp:DropDownList>
+                                        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:TayanaYachtConnectionString %>" SelectCommand="SELECT [countrySort] FROM [CountrySort]"></asp:SqlDataSource>
                                     </td>
                                 </tr>
                                 <tr>

@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
-using System.Text;
 using System.Web;
 using System.Web.Configuration;
 
@@ -14,138 +12,51 @@ namespace TayanaYachtRe.Tayanahtml
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack) {
-                getGuid();
-                loadGallery();
-                loadLeftMenu();
                 loadContent();
             }
-        }
-
-        private void getGuid()
-        {
-            //取得guid
-            string guidStr = Request.QueryString["id"];
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = "SELECT * FROM Yachts";
-            SqlCommand command = new SqlCommand(sql, connection);
-            connection.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            if (reader.Read()) {
-                if (String.IsNullOrEmpty(guidStr)) {
-                    guidStr = reader["guid"].ToString().Trim();
-                }
-            }
-            Session["guid"] = guidStr;
         }
 
         private void loadContent()
         {
             List<RowData> saveRowList = new List<RowData>();
-            //取得guid
+            //取得 Session 共用 Guid，Session 物件需轉回字串
             string guidStr = Session["guid"].ToString();
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //取資料
-            string sql = "SELECT * FROM Yachts WHERE guid = @guid";
+            //依 Guid 取得型號資料
+            string sql = "SELECT overviewDimensionsJSON FROM Yachts WHERE guid = @guid";
             SqlCommand command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@guid", guidStr);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
-            StringBuilder topMenuHtmlStr = new StringBuilder();
             if (reader.Read()) {
-                string yachtModelStr = reader["yachtModel"].ToString();
                 string loadJson = HttpUtility.HtmlDecode(reader["overviewDimensionsJSON"].ToString());
-
-                topMenuHtmlStr.Append($"<li><a class='menu_yli01' href='Yachts_OverView.aspx?id={guidStr}' >OverView</a></li>");
-                topMenuHtmlStr.Append($"<li><a class='menu_yli02' href='Yachts_Layout.aspx?id={guidStr}' >Layout & deck plan</a></li>");
-                topMenuHtmlStr.Append($"<li><a class='menu_yli03' href='Yachts_Specification.aspx?id={guidStr}' >Specification</a></li>");
-
                 saveRowList = JsonConvert.DeserializeObject<List<RowData>>(loadJson);
-                if (!String.IsNullOrEmpty(saveRowList[0].SaveValue)) {
-                    topMenuHtmlStr.Append($"<li><a class='menu_yli04' href='Yachts_Video.aspx?id={guidStr}' >Video</a></li>");
-                }
-                else {
+                // List<T> 第一筆資料是放影片連結
+                string youtubeUrlStr = saveRowList[0].SaveValue;
+                //如果沒有影片連結就導回 OverView 分頁
+                if (String.IsNullOrEmpty(youtubeUrlStr)) {
                     Response.Redirect($"Yachts_OverView.aspx?id={guidStr}");
                 }
-
-                LabLink.Text = yachtModelStr;
-                LiteralTtitleHtml.Text = $"<span>{yachtModelStr}</span>";
-                TopMenuLinkHtml.Text = topMenuHtmlStr.ToString();
-                string youtubeUrlStr = saveRowList[0].SaveValue;
-                string[] youtubeUrlArr = youtubeUrlStr.Split('/');
-                string strNewUrl = "https:/" + "/www.youtube.com/" + "embed/" + youtubeUrlArr[youtubeUrlArr.Length - 1];
-                video.Attributes.Add("src", strNewUrl);
+                else {
+                    //將取出的 YouTube 連結字串分離出 "影片 ID 字串"
+                    //使用者如果是用分享功能複製連結時處理方式
+                    string[] youtubeUrlArr = youtubeUrlStr.Split('/');
+                    //使用者如果是直接從網址複製連結時處理方式
+                    string[] vedioIDArr = youtubeUrlArr[youtubeUrlArr.Length - 1].Split('=');
+                    //將 "影片 ID 字串" 組合成嵌入狀態的 YouTube 連結
+                    string strNewUrl = "https:/" + "/youtube.com/" + "embed/" + vedioIDArr[vedioIDArr.Length - 1];
+                    //更新 <iframe> src 連結
+                    video.Attributes.Add("src", strNewUrl);
+                }
             }
             connection.Close();
-
         }
 
-        //JSON資料
+        // JSON 資料
         public class RowData
         {
             public string SaveItem { get; set; }
             public string SaveValue { get; set; }
         }
-
-        private void loadLeftMenu()
-        {
-            StringBuilder leftMenuHtml = new StringBuilder();
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = "SELECT * FROM Yachts";
-            SqlCommand command = new SqlCommand(sql, connection);
-            connection.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read()) {
-                string yachtModelStr = reader["yachtModel"].ToString();
-                string isNewDesignStr = reader["isNewDesign"].ToString();
-                string isNewBuildingStr = reader["isNewBuilding"].ToString();
-                string guidStr = reader["guid"].ToString();
-                string isNewStr = "";
-                if (isNewDesignStr.Equals("True")) {
-                    isNewStr = " (New Design)";
-                }
-                else if (isNewBuildingStr.Equals("True")) {
-                    isNewStr = " (New Building)";
-                }
-                leftMenuHtml.Append($"<li><a href='Yachts_Video.aspx?id={guidStr}'>{yachtModelStr}{isNewStr}</a></li>");
-            }
-            connection.Close();
-            LeftMenuHtml.Text = leftMenuHtml.ToString();
-        }
-
-        private void loadGallery()
-        {
-            //圖片必須用Repeater送不然JS抓不到html標籤會失敗
-            //建立資料表存資料
-            DataTable dataTable = new DataTable();
-            dataTable.Columns.AddRange(new DataColumn[1] { new DataColumn("ImageUrl") });
-            List<ImagePath> savePathList = new List<ImagePath>();
-            //取得guid
-            string guidStr = Session["guid"].ToString();
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //取資料
-            string sql = "SELECT * FROM Yachts WHERE guid = @guid";
-            SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@guid", guidStr);
-            connection.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            StringBuilder galleryImgHtmlStr = new StringBuilder();
-            if (reader.Read()) {
-                string loadJson = HttpUtility.HtmlDecode(reader["bannerImgPathJSON"].ToString());
-                savePathList = JsonConvert.DeserializeObject<List<ImagePath>>(loadJson);
-                foreach (var item in savePathList) {
-                    dataTable.Rows.Add($"upload/Images/{item.SavePath}");
-                }
-            }
-            connection.Close();
-            RepeaterImg.DataSource = dataTable;
-            RepeaterImg.DataBind();
-        }
-
-        //JSON資料
-        public class ImagePath
-        {
-            public string SavePath { get; set; }
-        }
-
     }
 }

@@ -11,82 +11,82 @@ namespace TayanaYachtRe.Sys
 {
     public partial class Specification_Manager_Cpage : System.Web.UI.Page
     {
-        //宣告List方便用Add依序添加資料
+        //宣告 List<T> 方便用 Add 依序添加資料
         private List<ImagePath> savePathList = new List<ImagePath>();
         protected void Page_Load(object sender, EventArgs e)
         {
-            //權限關門判斷 (Cookie)
-            if (!User.Identity.IsAuthenticated) {
-                Response.Redirect("Manager_SignIn.aspx"); //導回登入頁
-            }
             if (!IsPostBack) {
-                DListModel.DataBind();
-                DListDetailTitle.DataBind();
-                loadImageList();
-                loadDetailList();
+                DListModel.DataBind(); //先取得型號預設選取值
+                DListDetailTitle.DataBind(); //先取得細節標題預設選取值
+                loadImageList(); //取得 Layout 組圖
+                loadDetailList(); //取得標題細節
+
+                int i = 0;
+                
+                for (; i < 5;) {
+
+                    i++;
+                }
             }
         }
 
         #region Group Image List
         private void loadImageList()
         {
-            string selectModelStr = DListModel.SelectedValue;
-            //1.連線資料庫
+            //依型號取得組圖圖片資料
+            string selectModel_id = DListModel.SelectedValue;
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
-            string sqlLoad = "SELECT layoutDeckPlanImgPathJSON FROM Yachts WHERE yachtModel = @yachtModel";
-            //3.創建command物件
+            string sqlLoad = "SELECT layoutDeckPlanImgPathJSON FROM Yachts WHERE id = @selectModel_id";
             SqlCommand command = new SqlCommand(sqlLoad, connection);
-            //4.參數化
-            command.Parameters.AddWithValue("@yachtModel", selectModelStr);
-            //取得資料
+            command.Parameters.AddWithValue("@selectModel_id", selectModel_id);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
+                //將特殊符號解碼
                 string loadJson = HttpUtility.HtmlDecode(reader["layoutDeckPlanImgPathJSON"].ToString());
                 //反序列化JSON格式
                 savePathList = JsonConvert.DeserializeObject<List<ImagePath>>(loadJson);
             }
-            //資料庫關閉
             connection.Close();
-            //?.可用來判斷不是Null才執行Count
-            if (savePathList.Count > 0) {
+
+            //渲染圖片選項
+            if (savePathList?.Count > 0) {
                 foreach (var item in savePathList) {
-                    ListItem listItem = new ListItem($"<img src='../Tayanahtml/upload/Images/{item.SavePath}' alt='thumbnail' class='img-thumbnail' width='250'/>", item.SavePath);
+                    ListItem listItem = new ListItem($"<img src='/Tayanahtml/upload/Images/{item.SavePath}' alt='thumbnail' class='img-thumbnail' width='250px'/>", item.SavePath);
                     RadioButtonListImg.Items.Add(listItem);
                 }
             }
+
+            DelImageBtn.Visible = false; //刪除鈕有選擇圖片時才顯示
         }
 
         protected void UploadImgBtn_Click(object sender, EventArgs e)
         {
+            //有選擇檔案才執行
             if (imageUpload.HasFile) {
-                //取得上傳檔案大小
+                //取得上傳檔案大小 (限制 10MB)
                 int fileSize = imageUpload.PostedFile.ContentLength;
-                if (fileSize < 1024 * 10 * 1000) {
+                if (fileSize < 1024 * 1000 * 10) {
+                    //先讀取資料庫原有資料
                     loadImageList();
-                    DelImageBtn.Visible = false;
+                    string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
                     //添加圖檔資料
                     foreach (HttpPostedFile postedFile in imageUpload.PostedFiles) {
-                        //需填完整路徑，結尾反斜線如果沒加要用Path.Combine()可自動添加
-                        string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
+                        //儲存圖片檔案及圖片名稱
+                        //檢查專案資料夾內有無同名檔案，有同名就加流水號
+                        DirectoryInfo directoryInfo = new DirectoryInfo(savePath);
                         string fileName = postedFile.FileName;
-                        if (savePathList.Count > 0) {
-                            foreach (var item in savePathList) {
-                                if (item.SavePath.Equals(fileName)) {
-                                    string[] fileNameArr = fileName.Split('.');
-                                    fileName = fileNameArr[0] + "(1)." + fileNameArr[1];
-                                }
+                        string[] fileNameArr = fileName.Split('.');
+                        int count = 0;
+                        foreach (var fileItem in directoryInfo.GetFiles()) {
+                            if (fileItem.Name.Contains(fileNameArr[0])) {
+                                count++;
                             }
-                            postedFile.SaveAs(savePath + "temp" + fileName);
-                            //新增每筆JSON資料
-                            savePathList.Add(new ImagePath { SavePath = fileName });
                         }
-                        else {
-                            postedFile.SaveAs(savePath + "temp" + fileName);
-                            //新增每筆JSON資料
-                            savePathList.Add(new ImagePath { SavePath = fileName });
-                        }
+                        fileName = fileNameArr[0] + $"({count + 1})." + fileNameArr[1];
+                        postedFile.SaveAs(savePath + "temp" + fileName);
+                        savePathList.Add(new ImagePath { SavePath = fileName });
+
                         //壓縮圖檔
                         var image = NetVips.Image.NewFromFile(savePath + "temp" + fileName);
                         if (image.Width > 672 * 2) {
@@ -101,34 +101,32 @@ namespace TayanaYachtRe.Sys
                         }
                         File.Delete(savePath + "temp" + fileName);
                     }
-                    //將List資料轉為Json格式字串
+
+                    //依遊艇型號更新資料
+                    string selectModel_id = DListModel.SelectedValue;
+                    //將 List<T> 資料轉為 JSON 格式字串
                     string savePathJsonStr = JsonConvert.SerializeObject(savePathList);
-                    string selectModelStr = DListModel.SelectedValue;
-                    //1.連線資料庫
                     SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-                    //2.sql語法
-                    string sql = "UPDATE Yachts SET layoutDeckPlanImgPathJSON = @layoutDeckPlanImgPathJSON WHERE yachtModel = @yachtModel";
-                    //3.創建command物件
+                    string sql = "UPDATE Yachts SET layoutDeckPlanImgPathJSON = @layoutDeckPlanImgPathJSON WHERE id = @selectModel_id";
                     SqlCommand command = new SqlCommand(sql, connection);
-                    //4.參數化
                     command.Parameters.AddWithValue("@layoutDeckPlanImgPathJSON", savePathJsonStr);
-                    command.Parameters.AddWithValue("@yachtModel", selectModelStr);
-                    //5.資料庫連線開啟
+                    command.Parameters.AddWithValue("@selectModel_id", selectModel_id);
                     connection.Open();
-                    //6.執行sql (新增刪除修改)
                     command.ExecuteNonQuery();
-                    //7.資料庫關閉
                     connection.Close();
+                    
+                    //渲染畫面
                     RadioButtonListImg.Items.Clear();
                     loadImageList();
                 }
                 else {
                     Response.Write("<script>alert('*The maximum upload size is 10MB!');</script>");
                 }
+                
             }
         }
 
-        //JSON資料
+        // Layout 圖片 JSON 資料
         public class ImagePath
         {
             public string SavePath { get; set; }
@@ -141,224 +139,181 @@ namespace TayanaYachtRe.Sys
 
         protected void DelImageBtn_Click(object sender, EventArgs e)
         {
-            loadImageList();
+            //依選取項目刪除 List<T> 資料
+            loadImageList(); //先取得 List<T> 資料
             string selImageStr = RadioButtonListImg.SelectedValue;
             string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
-            savePath += selImageStr;
-            File.Delete(savePath);
+            File.Delete(savePath + selImageStr);
             for (int i = 0; i < savePathList.Count; i++) {
                 if (savePathList[i].SavePath.Equals(selImageStr)) {
                     savePathList.RemoveAt(i);
                 }
             }
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //將List資料轉為Json格式字串
+
+            //將 List<T> 資料轉為 JSON 格式字串
             string savePathJsonStr = JsonConvert.SerializeObject(savePathList);
-            string selectModelStr = DListModel.SelectedValue;
-            //2.sql語法
-            string sql = "UPDATE Yachts SET layoutDeckPlanImgPathJSON = @layoutDeckPlanImgPathJSON WHERE yachtModel = @yachtModel";
-            //3.創建command物件
+            string selectModel_id = DListModel.SelectedValue;
+
+            //依選取型號更新圖檔資料
+            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            string sql = "UPDATE Yachts SET layoutDeckPlanImgPathJSON = @layoutDeckPlanImgPathJSON WHERE id = @selectModel_id";
             SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
             command.Parameters.AddWithValue("@layoutDeckPlanImgPathJSON", savePathJsonStr);
-            command.Parameters.AddWithValue("@yachtModel", selectModelStr);
-            //5.資料庫連線開啟
+            command.Parameters.AddWithValue("@selectModel_id", selectModel_id);
             connection.Open();
-            //6.執行sql (新增刪除修改)
             command.ExecuteNonQuery();
-            //7.資料庫關閉
             connection.Close();
+
             //渲染畫面
             RadioButtonListImg.Items.Clear();
             loadImageList();
-            DelImageBtn.Visible = false;
         }
         #endregion
 
         protected void DListModel_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //刷新全部選項
             RadioButtonListImg.Items.Clear();
-            RadioButtonListD.Items.Clear();
+            RadioButtonListDetail.Items.Clear();
             loadImageList();
             loadDetailList();
-            DListDetailTitle.DataBind();
         }
 
         protected void DListDetailTitle_SelectedIndexChanged(object sender, EventArgs e)
         {
-            RadioButtonListD.Items.Clear();
+            //刷新細節選項
+            RadioButtonListDetail.Items.Clear();
             loadDetailList();
-        }
-
-        private void loadDetailList()
-        {
-            string selectModelStr = DListModel.SelectedValue;
-            string selectModelIDStr = "";
-            string selectTitleStr = DListDetailTitle.SelectedValue;
-            string selectTitleIDStr = "";
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
-            string sqlModel = "SELECT id FROM Yachts WHERE yachtModel = @yachtModel";
-            string sqlTitle = "SELECT id FROM DetailTitleSort WHERE detailTitleSort = @detailTitleSort";
-            string sql = "SELECT detail FROM Specification WHERE yachtModel_ID = @yachtModel_ID AND detailTitleSort_ID = @detailTitleSort_ID";
-            //3.創建command物件
-            SqlCommand commandModel = new SqlCommand(sqlModel, connection);
-            SqlCommand commandTitle = new SqlCommand(sqlTitle, connection);
-            SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
-            commandModel.Parameters.AddWithValue("@yachtModel", selectModelStr);
-            commandTitle.Parameters.AddWithValue("@detailTitleSort", selectTitleStr);
-            //取得Model代表id
-            connection.Open();
-            SqlDataReader reader = commandModel.ExecuteReader();
-            if (reader.Read()) {
-                selectModelIDStr = reader["id"].ToString();
-            }
-            connection.Close();
-            //取得Title代表id
-            connection.Open();
-            SqlDataReader reader2 = commandTitle.ExecuteReader();
-            if (reader2.Read()) {
-                selectTitleIDStr = reader2["id"].ToString();
-            }
-            connection.Close();
-            //取得Detail
-            command.Parameters.AddWithValue("@yachtModel_ID", selectModelIDStr);
-            command.Parameters.AddWithValue("@detailTitleSort_ID", selectTitleIDStr);
-            connection.Open();
-            SqlDataReader reader3 = command.ExecuteReader();
-            while (reader3.Read()) {
-                ListItem listItem = new ListItem(HttpUtility.HtmlDecode(reader3["detail"].ToString()), reader3["detail"].ToString());
-                RadioButtonListD.Items.Add(listItem);
-            }
-            connection.Close();
-        }
-
-        protected void BtnAddDetail_Click(object sender, EventArgs e)
-        {
-            string selectModelStr = DListModel.SelectedValue;
-            string selectModelIDStr = "";
-            string selectTitleStr = DListDetailTitle.SelectedValue;
-            string selectTitleIDStr = "";
-            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
-            string sqlModel = "SELECT id FROM Yachts WHERE yachtModel = @yachtModel";
-            string sqlTitle = "SELECT id FROM DetailTitleSort WHERE detailTitleSort = @detailTitleSort";
-            string sql = "INSERT INTO Specification (yachtModel_ID, detailTitleSort_ID, detail) VALUES (@yachtModel_ID, @detailTitleSort_ID, @detail)";
-            //3.創建command物件
-            SqlCommand commandModel = new SqlCommand(sqlModel, connection);
-            SqlCommand commandTitle = new SqlCommand(sqlTitle, connection);
-            SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
-            commandModel.Parameters.AddWithValue("@yachtModel", selectModelStr);
-            commandTitle.Parameters.AddWithValue("@detailTitleSort", selectTitleStr);
-            //取得Model代表id
-            connection.Open();
-            SqlDataReader reader = commandModel.ExecuteReader();
-            if (reader.Read()) {
-                selectModelIDStr = reader["id"].ToString();
-            }
-            connection.Close();
-            //取得Title代表id
-            connection.Open();
-            SqlDataReader reader2 = commandTitle.ExecuteReader();
-            if (reader2.Read()) {
-                selectTitleIDStr = reader2["id"].ToString();
-            }
-            connection.Close();
-            //新增Detail
-            string detailStr = TboxDetail.Text;
-            //轉換換行規則
-            detailStr = HttpUtility.HtmlEncode(detailStr.Replace("\r\n", "<br>"));
-            command.Parameters.AddWithValue("@yachtModel_ID", selectModelIDStr);
-            command.Parameters.AddWithValue("@detailTitleSort_ID", selectTitleIDStr);
-            command.Parameters.AddWithValue("@detail", detailStr);
-            connection.Open();
-            command.ExecuteNonQuery(); 
-            connection.Close();
-            //畫面渲染
-            ListItem listItem = new ListItem(HttpUtility.HtmlDecode(detailStr), detailStr);
-            RadioButtonListD.Items.Add(listItem);
-            TboxDetail.Text = "";
         }
 
         protected void RadioButtonListD_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //顯示細節項目刪除按鈕
             BtnDelDetail.Visible = true;
         }
 
+        private void loadDetailList()
+        {
+            //取得 Model 代表 id
+            string selectModel_id = DListModel.SelectedValue;
+            //取得 Title 代表 id
+            string selectTitle_id = DListDetailTitle.SelectedValue;
+
+            //依遊艇型號 id 及標題 id 取得 Detail
+            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            string sql = "SELECT detail FROM Specification WHERE yachtModel_ID = @selectModel_id AND detailTitleSort_ID = @selectTitle_id";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@selectModel_id", selectModel_id);
+            command.Parameters.AddWithValue("@selectTitle_id", selectTitle_id);
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read()) {
+                string detail = reader["detail"].ToString();
+                //將轉成字元實體的編碼轉回 HTML 標籤語法渲染
+                ListItem listItem = new ListItem(HttpUtility.HtmlDecode(detail), detail);
+                RadioButtonListDetail.Items.Add(listItem);
+            }
+            connection.Close();
+
+            BtnDelDetail.Visible = false; //刪除鈕有選擇項目時才顯示
+        }
+
+        protected void BtnAddDetail_Click(object sender, EventArgs e)
+        {
+            //取得新增 Detail
+            string newDetailStr = TboxDetail.Text;
+            //將換行跳脫字元改成 HTML 換行標籤
+            newDetailStr = newDetailStr.Replace("\r\n", "<br>");
+
+            //依取得下拉選項的值 (id) 存入 Detail 資料
+            string selectModel_id = DListModel.SelectedValue;
+            string selectTitle_id = DListDetailTitle.SelectedValue;
+            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            string sql = "INSERT INTO Specification (yachtModel_ID, detailTitleSort_ID, detail) VALUES (@selectModel_id, @selectTitle_id, @detail)";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@selectModel_id", selectModel_id);
+            command.Parameters.AddWithValue("@selectTitle_id", selectTitle_id);
+            //特殊符號要轉成字元實體才能正常存進資料庫
+            command.Parameters.AddWithValue("@detail", HttpUtility.HtmlEncode(newDetailStr));
+            connection.Open();
+            command.ExecuteNonQuery(); 
+            connection.Close();
+
+            //將改成 HTML 換行標籤資料加入選項渲染畫面
+            ListItem listItem = new ListItem(newDetailStr, newDetailStr);
+            RadioButtonListDetail.Items.Add(listItem);
+            TboxDetail.Text = "";
+        }
+
+
         protected void BtnDelDetail_Click(object sender, EventArgs e)
         {
-            string selectModelStr = DListModel.SelectedValue;
-            string selectModelIDStr = "";
-            string selectTitleStr = DListDetailTitle.SelectedValue;
-            string selectTitleIDStr = "";
-            string selectDetailStr = RadioButtonListD.SelectedValue;
+            //依選取資料刪除 Detail 資料
+            string selectModel_id = DListModel.SelectedValue;
+            string selectTitle_id = DListDetailTitle.SelectedValue;
+            string selectDetailStr = RadioButtonListDetail.SelectedValue;
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            //2.sql語法
-            string sqlModel = "SELECT id FROM Yachts WHERE yachtModel = @yachtModel";
-            string sqlTitle = "SELECT id FROM DetailTitleSort WHERE detailTitleSort = @detailTitleSort";
-            string sql = "DELETE FROM Specification WHERE yachtModel_ID = @yachtModel_ID AND detailTitleSort_ID = @detailTitleSort_ID AND detail = @detail";
-            //3.創建command物件
-            SqlCommand commandModel = new SqlCommand(sqlModel, connection);
-            SqlCommand commandTitle = new SqlCommand(sqlTitle, connection);
+            string sql = "DELETE FROM Specification WHERE yachtModel_ID = @selectModel_id AND detailTitleSort_ID = @selectTitle_id AND detail = @selectDetailStr";
             SqlCommand command = new SqlCommand(sql, connection);
-            //4.參數化
-            commandModel.Parameters.AddWithValue("@yachtModel", selectModelStr);
-            commandTitle.Parameters.AddWithValue("@detailTitleSort", selectTitleStr);
-            //取得Model代表id
-            connection.Open();
-            SqlDataReader reader = commandModel.ExecuteReader();
-            if (reader.Read()) {
-                selectModelIDStr = reader["id"].ToString();
-            }
-            connection.Close();
-            //取得Title代表id
-            connection.Open();
-            SqlDataReader reader2 = commandTitle.ExecuteReader();
-            if (reader2.Read()) {
-                selectTitleIDStr = reader2["id"].ToString();
-            }
-            connection.Close();
-            //刪除Detail
-            command.Parameters.AddWithValue("@yachtModel_ID", selectModelIDStr);
-            command.Parameters.AddWithValue("@detailTitleSort_ID", selectTitleIDStr);
-            command.Parameters.AddWithValue("@detail", selectDetailStr);
+            command.Parameters.AddWithValue("@selectModel_id", selectModel_id);
+            command.Parameters.AddWithValue("@selectTitle_id", selectTitle_id);
+            command.Parameters.AddWithValue("@selectDetailStr", selectDetailStr);
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();
-            //畫面渲染
-            RadioButtonListD.Items.Clear();
+
+            //渲染畫面
+            RadioButtonListDetail.Items.Clear();
             loadDetailList();
-            BtnDelDetail.Visible = false;
         }
 
         protected void BtnAddNewTitle_Click(object sender, EventArgs e)
         {
+            //取得輸入標題字串
+            string newTitleStr = TBoxAddNewTitle.Text;
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //2.sql語法
-            string sql = "INSERT INTO DetailTitleSort (detailTitleSort) VALUES(@title)";
+            string sql = "INSERT INTO DetailTitleSort (detailTitleSort) VALUES(@newTitleStr)";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
             //4.參數化
-            command.Parameters.AddWithValue("@title", TBoxAddNewTitle.Text);
+            command.Parameters.AddWithValue("@newTitleStr", newTitleStr);
             //5.資料庫連線開啟
             connection.Open();
             //6.執行sql (新增刪除修改)
-            command.ExecuteNonQuery(); //無回傳值
+            command.ExecuteNonQuery(); //單純執行無回傳值
             //7.資料庫關閉
             connection.Close();
             //畫面渲染
-            DListDetailTitle.DataBind();
             GridView1.DataBind();
+            DListDetailTitle.DataBind();
+            //下拉選單改為選取最新項
+            DListDetailTitle.SelectedIndex = DListDetailTitle.Items.Count - 1;
             //清空輸入欄位
             TBoxAddNewTitle.Text = "";
+            //清空細節項目
+            RadioButtonListDetail.Items.Clear();
         }
 
         protected void DeltedTitle(object sender, GridViewDeletedEventArgs e)
         {
+            //刷新下拉選單
             DListDetailTitle.DataBind();
+            //刷新細節項目
+            RadioButtonListDetail.Items.Clear();
+            RadioButtonListDetail.DataBind();
+            loadDetailList();
+        }
+
+        protected void UpdatedTitle(object sender, GridViewUpdatedEventArgs e)
+        {
+            //刷新下拉選單
+            DListDetailTitle.DataBind();
+            //刷新細節項目
+            RadioButtonListDetail.Items.Clear();
+            RadioButtonListDetail.DataBind();
+            loadDetailList();
         }
     }
 }

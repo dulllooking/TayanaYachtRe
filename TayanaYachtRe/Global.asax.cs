@@ -47,6 +47,7 @@ namespace TayanaYachtRe
             //第三個引數：該路由規則交給哪一個頁面來處理
             routes.MapPageRoute("shortUrlRoute", "ShowList/{shortUrl}", "~/Tayanahtml/dealers.aspx");
             //...當然，您還可以新增更多路由規則
+            //如果你由短網址連入，該頁面連接的到的頁面也要跟著修改規則
         }
 
         protected void Session_Start(object sender, EventArgs e)

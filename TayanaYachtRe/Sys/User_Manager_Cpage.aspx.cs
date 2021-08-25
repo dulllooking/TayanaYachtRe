@@ -11,10 +11,6 @@ namespace TayanaYachtRe.Sys
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            //權限關門判斷 (Cookie)
-            if (!User.Identity.IsAuthenticated) {
-                Response.Redirect("Manager_SignIn.aspx"); //導回登入頁
-            }
             if (!IsPostBack) {
                 GridView1.DataBind();
             }

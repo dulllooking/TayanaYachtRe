@@ -23,7 +23,7 @@ namespace TayanaYachtRe.Tayanahtml
         {
             //從資料庫取內文資料
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sqlCountry = "SELECT certificatContent FROM Company";
+            string sqlCountry = "SELECT TOP 1 certificatContent FROM Company";
             SqlCommand command = new SqlCommand(sqlCountry, connection);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
@@ -42,7 +42,7 @@ namespace TayanaYachtRe.Tayanahtml
             List<ImagePathV> savePathListV = new List<ImagePathV>();
             //從資料庫取出直式圖檔檔名
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sqlLoad = "SELECT certificatVerticalImgJSON FROM Company WHERE id = 1";
+            string sqlLoad = "SELECT TOP 1 certificatVerticalImgJSON FROM Company";
             SqlCommand command = new SqlCommand(sqlLoad, connection);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
@@ -76,7 +76,7 @@ namespace TayanaYachtRe.Tayanahtml
             List<ImagePathH> savePathListH = new List<ImagePathH>();
             //從資料庫取出橫式圖檔檔名
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sqlLoad = "SELECT certificatHorizontalImgJSON FROM Company WHERE id = 1";
+            string sqlLoad = "SELECT TOP 1 certificatHorizontalImgJSON FROM Company";
             SqlCommand command = new SqlCommand(sqlLoad, connection);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
@@ -89,7 +89,7 @@ namespace TayanaYachtRe.Tayanahtml
             // ?. 可用來判斷不是 Null 才執行 Count
             if (savePathListH?.Count > 0) {
                 foreach (var item in savePathListH) {
-                    ImgHHtml.Append($"<li><p><img src='images/{item.SaveName}' alt='Tayana ' width='319' height='234' /></p></li>");
+                    ImgHHtml.Append($"<li><p><img src='images/{item.SaveName}' alt='Tayana ' width='319px' height='234px' /></p></li>");
                 }
             }
             ContentImgH.Text = ImgHHtml.ToString();

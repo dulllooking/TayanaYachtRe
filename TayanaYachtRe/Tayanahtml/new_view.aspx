@@ -98,7 +98,7 @@
             <div class="title"> <span>News & Events</span></div>
             <!--------------------------------內容開始---------------------------------------------------->
             <div class="box3">
-                <h4><span id="ctl00_ContentPlaceHolder1_title" runat="server"></span></h4>
+                <h4><span id="newsTitle" runat="server"></span></h4>
                 <p>
                     <asp:Literal ID="newsContent" runat="server"></asp:Literal>
                 </p>

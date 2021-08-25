@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="company_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.company_Manager_Cpage" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="company_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.company_Manager_Cpage" MaintainScrollPositionOnPostback="True" %>
 
 <%@ Register Assembly="CKEditor.NET" Namespace="CKEditor.NET" TagPrefix="CKEditor" %>
 

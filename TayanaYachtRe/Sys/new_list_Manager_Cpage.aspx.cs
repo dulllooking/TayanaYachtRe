@@ -11,47 +11,41 @@ using Newtonsoft.Json;
 
 namespace TayanaYachtRe.Sys
 {
-    public partial class new_list_Manager_Cpage : System.Web.UI.Page
+    public partial class New_list_Manager_Cpage : System.Web.UI.Page
     {
         //宣告 List 方便用 Add 依序添加資料
         private List<ImagePath> savePathList = new List<ImagePath>();
         protected void Page_Load(object sender, EventArgs e)
         {
-            //權限關門判斷 (Cookie)
-            if (!User.Identity.IsAuthenticated) {
-                Response.Redirect("Manager_SignIn.aspx"); //導回登入頁
-            }
             if (!IsPostBack) {
                 ckfinderSetPath();
-                CoverList.Visible = false; //隱藏: 新聞列表縮圖 + 新聞簡介
-                NewsContent.Visible = false; //隱藏: 新聞上方主要內容 + 新聞下方組圖
                 Calendar1.SelectedDate = Calendar1.TodaysDate; //預設選取當日日期
-                loadDayNewsHeadline(); //讀取新聞標題
+                LoadDayNewsHeadline(); //讀取新聞標題
                 //如果選取當日有新聞
                 if (headlineRadioBtnList.Items.Count > 0) {
                     CoverList.Visible = true; //顯示: 新聞列表縮圖 + 新聞簡介
                     NewsContent.Visible = true; //顯示: 新聞上方主要內容 + 新聞下方組圖
-                    loadThumbnail(); //讀取-新聞列表縮圖
-                    loadSummary(); //讀取-新聞簡介
-                    loadNewsContent(); //讀取-新聞上方主要內容
-                    loadImageList(); //讀取-新聞下方組圖
+                    LoadThumbnail(); //讀取-新聞列表縮圖
+                    LoadSummary(); //讀取-新聞簡介
+                    LoadNewsContent(); //讀取-新聞上方主要內容
+                    LoadImageList(); //讀取-新聞下方組圖
                 }
             }
         }
 
-        private void loadThumbnail()
+        private void LoadThumbnail()
         {
             string selHeadlineStr = headlineRadioBtnList.SelectedValue;
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //2.sql語法
-            string sql = "SELECT thumbnailPath FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sql = "SELECT thumbnailPath FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
             //4.參數化
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             //讀出一筆資料寫入控制器 (.Read()一次會跑一筆)
             //.Read()=>指針往下一移並回傳bool，如果要讀全部可用while //最後一筆之後是EOF
             //取得地區分類
@@ -59,17 +53,17 @@ namespace TayanaYachtRe.Sys
             SqlDataReader reader = command.ExecuteReader(); //指標指在BOF(表格之上)
             if (reader.Read()) {
                 string thumbnailPathStr = reader["thumbnailPath"].ToString();
-                Thumbnail.ImageUrl = "~/Tayanahtml/" + thumbnailPathStr;
+                LitThumbnail.Text = $"<img alt='Thumbnail Image' src='/Tayanahtml/upload/Images/{thumbnailPathStr}' class='img-thumbnail rounded mx-auto d-block' style='width: 161px; height: 121px;' />";
             }
             else {
-                Thumbnail.ImageUrl = "";
+                LitThumbnail.Text = "";
             }
             connection.Close();
             //渲染畫面
             LabUploadThumbnail.Visible = false;
         }
 
-        private void loadSummary()
+        private void LoadSummary()
         {
             //取得新聞標題
             string selHeadlineStr = headlineRadioBtnList.SelectedValue;
@@ -77,10 +71,10 @@ namespace TayanaYachtRe.Sys
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //取得新聞簡介內容
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = "SELECT summary FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sql = "SELECT summary FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
@@ -94,19 +88,19 @@ namespace TayanaYachtRe.Sys
             LabUploadSummary.Visible = false;
         }
 
-        private void loadNewsContent()
+        private void LoadNewsContent()
         {
             string selHeadlineStr = headlineRadioBtnList.SelectedValue;
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //2.sql語法
-            string sql = "SELECT newsContentHtml FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sql = "SELECT newsContentHtml FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
             //4.參數化
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             //取得資料
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
@@ -123,19 +117,19 @@ namespace TayanaYachtRe.Sys
         }
 
         #region Group Image List
-        private void loadImageList()
+        private void LoadImageList()
         {
             string selHeadlineStr = headlineRadioBtnList.SelectedValue;
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //2.sql語法
-            string sqlLoad = "SELECT newsImageJson FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sqlLoad = "SELECT newsImageJson FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sqlLoad, connection);
             //4.參數化
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             //取得資料
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
@@ -147,9 +141,9 @@ namespace TayanaYachtRe.Sys
             //資料庫關閉
             connection.Close();
             //?.可用來判斷不是Null才執行Count
-            if (savePathList.Count > 0) {
+            if (savePathList?.Count > 0) {
                 foreach (var item in savePathList) {
-                    ListItem listItem = new ListItem($"<img src='../Tayanahtml/upload/Images/{item.SavePath}' alt='thumbnail' class='img-thumbnail' width='200'/>", item.SavePath);
+                    ListItem listItem = new ListItem($"<img src='/Tayanahtml/upload/Images/{item.SavePath}' alt='thumbnail' class='img-thumbnail' width='200px'/>", item.SavePath);
                     RadioButtonListImg.Items.Add(listItem);
                 }
             }
@@ -159,32 +153,30 @@ namespace TayanaYachtRe.Sys
         protected void UploadImgBtn_Click(object sender, EventArgs e)
         {
             if (imageUpload.HasFile) {
-                //取得上傳檔案大小
-                int fileSize = imageUpload.PostedFile.ContentLength;
-                if (fileSize < 1024 * 10 * 1000) {
-                    loadImageList();
-                    DelImageBtn.Visible = false;
+                //取得上傳檔案大小 (限制 10MB)
+                int fileSize = imageUpload.PostedFile.ContentLength; // Byte
+                if (fileSize < 1024 * 1000 * 10) {
+                    //先讀取資料庫原有資料
+                    LoadImageList();
+                    string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
                     //添加圖檔資料
                     foreach (HttpPostedFile postedFile in imageUpload.PostedFiles) {
-                        //需填完整路徑，結尾反斜線如果沒加要用Path.Combine()可自動添加
-                        string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
+                        //儲存圖片檔案及圖片名稱
+                        //檢查專案資料夾內有無同名檔案，有同名就加流水號
+                        DirectoryInfo directoryInfo = new DirectoryInfo(savePath);
                         string fileName = postedFile.FileName;
-                        if (savePathList.Count > 0) {
-                            foreach (var item in savePathList) {
-                                if (item.SavePath.Equals(fileName)) {
-                                    string[] fileNameArr = fileName.Split('.');
-                                    fileName = fileNameArr[0] + "(1)." + fileNameArr[1];
-                                }
+                        string[] fileNameArr = fileName.Split('.');
+                        int count = 0;
+                        foreach (var fileItem in directoryInfo.GetFiles()) {
+                            if (fileItem.Name.Contains(fileNameArr[0])) {
+                                count++;
                             }
-                            postedFile.SaveAs(savePath + "temp" + fileName);
-                            //新增每筆JSON資料
-                            savePathList.Add(new ImagePath { SavePath = fileName });
                         }
-                        else {
-                            postedFile.SaveAs(savePath + "temp" + fileName);
-                            //新增每筆JSON資料
-                            savePathList.Add(new ImagePath { SavePath = fileName });
-                        }
+                        fileName = fileNameArr[0] + $"({count + 1})." + fileNameArr[1];
+                        postedFile.SaveAs(savePath + "temp" + fileName);
+                        //新增每筆JSON資料
+                        savePathList.Add(new ImagePath { SavePath = fileName });
+                        
                         //壓縮圖檔
                         var image = NetVips.Image.NewFromFile(savePath + "temp" + fileName);
                         if (image.Width > 967 * 2) {
@@ -206,13 +198,13 @@ namespace TayanaYachtRe.Sys
                     //1.連線資料庫
                     SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
                     //2.sql語法
-                    string sql = "UPDATE News SET newsImageJson = @newsImageJson WHERE dateTitle = @dateTitle AND headline = @headline";
+                    string sql = "UPDATE News SET newsImageJson = @savePathJsonStr WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
                     //3.創建command物件
                     SqlCommand command = new SqlCommand(sql, connection);
                     //4.參數化
-                    command.Parameters.AddWithValue("@newsImageJson", savePathJsonStr);
-                    command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-                    command.Parameters.AddWithValue("@headline", selHeadlineStr);
+                    command.Parameters.AddWithValue("@savePathJsonStr", savePathJsonStr);
+                    command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+                    command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
                     //5.資料庫連線開啟
                     connection.Open();
                     //6.執行sql (新增刪除修改)
@@ -220,7 +212,7 @@ namespace TayanaYachtRe.Sys
                     //7.資料庫關閉
                     connection.Close();
                     RadioButtonListImg.Items.Clear();
-                    loadImageList();
+                    LoadImageList();
                 }
                 else {
                     Response.Write("<script>alert('*The maximum upload size is 10MB!');</script>");
@@ -241,11 +233,10 @@ namespace TayanaYachtRe.Sys
 
         protected void DelImageBtn_Click(object sender, EventArgs e)
         {
-            loadImageList();
+            LoadImageList();
             string selImageStr = RadioButtonListImg.SelectedValue;
             string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
-            savePath += selImageStr;
-            File.Delete(savePath);
+            File.Delete(savePath + selImageStr);
             for (int i = 0; i < savePathList.Count; i++) {
                 if (savePathList[i].SavePath.Equals(selImageStr)) {
                     savePathList.RemoveAt(i);
@@ -257,13 +248,13 @@ namespace TayanaYachtRe.Sys
             string selHeadlineStr = headlineRadioBtnList.SelectedValue;
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //2.sql語法
-            string sql = "UPDATE News SET newsImageJson = @newsImageJson WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sql = "UPDATE News SET newsImageJson = @savePathJsonStr WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
             //4.參數化
-            command.Parameters.AddWithValue("@newsImageJson", savePathJsonStr);
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@savePathJsonStr", savePathJsonStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             //5.資料庫連線開啟
             connection.Open();
             //6.執行sql (新增刪除修改)
@@ -272,14 +263,14 @@ namespace TayanaYachtRe.Sys
             connection.Close();
             //渲染畫面
             RadioButtonListImg.Items.Clear();
-            loadImageList();
+            LoadImageList();
             DelImageBtn.Visible = false;
         }
         #endregion
 
 
 
-        private void loadDayNewsHeadline()
+        private void LoadDayNewsHeadline()
         {
             //依選取日期取得資料庫新聞內容
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
@@ -318,13 +309,15 @@ namespace TayanaYachtRe.Sys
             //取得當月第一天跟最後一天
             DateTime firstDay = DateTime.Now.AddDays(-DateTime.Now.Day + 1);
             DateTime lastDay = DateTime.Now.AddMonths(1).AddDays(-DateTime.Now.AddMonths(1).Day);
-            //取得當月第一天往前10週+當月最後一天往後10週
-            string firstDayLastWeek = firstDay.AddDays(-70).ToString("yyyyMMdd");
-            string lastDayNextWeek = lastDay.AddDays(70).ToString("yyyyMMdd");
+            //取得當月第一天往前100天+當月最後一天往後100天
+            string firstDayLastWeek = firstDay.AddDays(-100).ToString("yyyyMMdd");
+            string lastDayNextWeek = lastDay.AddDays(100).ToString("yyyyMMdd");
             //取得新聞日期
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = $"SELECT dateTitle FROM News WHERE dateTitle BETWEEN '{firstDayLastWeek}' AND '{lastDayNextWeek}'";
+            string sql = "SELECT dateTitle FROM News WHERE dateTitle BETWEEN @firstDayLastWeek AND @lastDayNextWeek";
             SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@firstDayLastWeek", firstDayLastWeek);
+            command.Parameters.AddWithValue("@lastDayNextWeek", lastDayNextWeek);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read()) {
@@ -350,14 +343,14 @@ namespace TayanaYachtRe.Sys
             LabIsTop.Visible = false;
             headlineRadioBtnList.Items.Clear();
             RadioButtonListImg.Items.Clear();
-            loadDayNewsHeadline();
+            LoadDayNewsHeadline();
             if (headlineRadioBtnList.Items.Count > 0) {
                 CoverList.Visible = true;
                 NewsContent.Visible = true;
-                loadThumbnail();
-                loadSummary();
-                loadNewsContent();
-                loadImageList();
+                LoadThumbnail();
+                LoadSummary();
+                LoadNewsContent();
+                LoadImageList();
             }
             else {
                 CoverList.Visible = false;
@@ -387,10 +380,10 @@ namespace TayanaYachtRe.Sys
 
             //渲染畫面
             RadioButtonListImg.Items.Clear();
-            loadThumbnail();
-            loadSummary();
-            loadNewsContent();
-            loadImageList();
+            LoadThumbnail();
+            LoadSummary();
+            LoadNewsContent();
+            LoadImageList();
         }
 
         protected void deleteNewsBtn_Click(object sender, EventArgs e)
@@ -403,29 +396,47 @@ namespace TayanaYachtRe.Sys
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
- 
+
             //刪除圖檔(縮圖)
-            string sql = "SELECT thumbnailPath FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
+            string savePath = Server.MapPath("~/Tayanahtml/upload/Images/");
+            string sql = "SELECT thumbnailPath FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
-                string savePathT = reader["thumbnailPath"].ToString();
-                if (!savePathT.Equals("")) {
-                    string savePath = Server.MapPath("~/Tayanahtml/");
-                    savePath += savePathT;
-                    File.Delete(savePath);
+                string thumbnailPath = reader["thumbnailPath"].ToString();
+                if (!String.IsNullOrEmpty(thumbnailPath)) {
+                    File.Delete(savePath + thumbnailPath);
                 }
             }
             connection.Close();
 
+            //刪除圖檔(組圖)
+            string sql2 = "SELECT newsImageJson FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
+            SqlCommand command2 = new SqlCommand(sql2, connection);
+            command2.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command2.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
+            connection.Open();
+            SqlDataReader reader2 = command2.ExecuteReader();
+            if (reader2.Read()) {
+                string loadJson = HttpUtility.HtmlDecode(reader2["newsImageJson"].ToString());
+                //反序列化JSON格式
+                savePathList = JsonConvert.DeserializeObject<List<ImagePath>>(loadJson);
+            }
+            connection.Close();
+            if (savePathList?.Count > 0) {
+                foreach (var item in savePathList) {
+                    File.Delete(savePath + item.SavePath);
+                }
+            }
+
             //刪除資料庫該筆資料
-            string sqlDel = "DELETE FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sqlDel = "DELETE FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             SqlCommand commandDel = new SqlCommand(sqlDel, connection);
-            commandDel.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            commandDel.Parameters.AddWithValue("@headline", selHeadlineStr);
+            commandDel.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            commandDel.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             connection.Open();
             commandDel.ExecuteNonQuery();
             connection.Close();
@@ -436,14 +447,14 @@ namespace TayanaYachtRe.Sys
             CBoxIsTop.Checked = false;
             headlineRadioBtnList.Items.Clear();
             RadioButtonListImg.Items.Clear();
-            loadDayNewsHeadline();
+            LoadDayNewsHeadline();
             if (headlineRadioBtnList.Items.Count > 0) {
                 CoverList.Visible = true;
                 NewsContent.Visible = true;
-                loadThumbnail();
-                loadSummary();
-                loadNewsContent();
-                loadImageList();
+                LoadThumbnail();
+                LoadSummary();
+                LoadNewsContent();
+                LoadImageList();
             }
             else {
                 CoverList.Visible = false;
@@ -453,20 +464,22 @@ namespace TayanaYachtRe.Sys
 
         protected void AddHeadlineBtn_Click(object sender, EventArgs e)
         {
-            //產生 GUID 隨機碼
-            string guid = Guid.NewGuid().ToString().Trim();
+            //產生 GUID 隨機碼 + 時間2位秒數 (加強避免重複)
+            DateTime nowTime = DateTime.Now;
+            string nowSec = nowTime.ToString("ff");
+            string guid = Guid.NewGuid().ToString().Trim() + nowSec;
             //取得日曆選取日期
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //取得是否勾選
             string isTop = CBoxIsTop.Checked.ToString(); //得到 "True" or "False"
             //將資料存入資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = "INSERT INTO News (dateTitle, headline, guid, isTop) VALUES (@dateTitle, @headline, @guid, @top)";
+            string sql = "INSERT INTO News (dateTitle, headline, guid, isTop) VALUES (@selNewsDate, @headline, @guid, @isTop)";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
             command.Parameters.AddWithValue("@headline", headlineTbox.Text);
             command.Parameters.AddWithValue("@guid", guid);
-            command.Parameters.AddWithValue("@top", isTop); //存入資料庫會轉為 0 or 1
+            command.Parameters.AddWithValue("@isTop", isTop); //存入資料庫會轉為 0 or 1
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();
@@ -477,14 +490,14 @@ namespace TayanaYachtRe.Sys
             CBoxIsTop.Checked = false;
             headlineRadioBtnList.Items.Clear();
             RadioButtonListImg.Items.Clear();
-            loadDayNewsHeadline();
-            if (headlineRadioBtnList.Items.Count > 0) {
+            LoadDayNewsHeadline();
+            if (headlineRadioBtnList.Items?.Count > 0) {
                 CoverList.Visible = true;
                 NewsContent.Visible = true;
-                loadThumbnail();
-                loadSummary();
-                loadNewsContent();
-                loadImageList();
+                LoadThumbnail();
+                LoadSummary();
+                LoadNewsContent();
+                LoadImageList();
             }
             else {
                 CoverList.Visible = false;
@@ -507,17 +520,17 @@ namespace TayanaYachtRe.Sys
                 //1.連線資料庫
                 SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
                 //2.sql語法
-                string sqlDel = "SELECT thumbnailPath FROM News WHERE dateTitle = @dateTitle AND headline = @headline";
-                string sql = "UPDATE News SET thumbnailPath = @path WHERE dateTitle = @dateTitle AND headline = @headline";
+                string sqlDel = "SELECT thumbnailPath FROM News WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
+                string sql = "UPDATE News SET thumbnailPath = @fileName WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
                 //3.創建command物件
                 SqlCommand commandDel = new SqlCommand(sqlDel, connection);
                 SqlCommand command = new SqlCommand(sql, connection);
                 //4.參數化
-                commandDel.Parameters.AddWithValue("@dateTitle", selNewsDate);
-                commandDel.Parameters.AddWithValue("@headline", selHeadlineStr);
-                command.Parameters.AddWithValue("@path", $"upload/Images/{fileName}");
-                command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-                command.Parameters.AddWithValue("@headline", selHeadlineStr);
+                commandDel.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+                commandDel.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
+                command.Parameters.AddWithValue("@fileName", fileName);
+                command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+                command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
 
                 //刪除舊圖檔
                 connection.Open();
@@ -525,13 +538,23 @@ namespace TayanaYachtRe.Sys
                 if (reader.Read()) {
                     string delFileName = reader["thumbnailPath"].ToString();
                     if (!delFileName.Equals("")) {
-                        string delPath = Server.MapPath("~/Tayanahtml/");
-                        delPath += delFileName;
-                        File.Delete(delPath);
+                        File.Delete(savePath + delFileName);
                     }
                 }
                 connection.Close();
 
+                //儲存圖片檔案及圖片名稱
+                //檢查專案資料夾內有無同名檔案，有同名就加流水號
+                DirectoryInfo directoryInfo = new DirectoryInfo(savePath);
+                string[] fileNameArr = fileName.Split('.');
+                int count = 0;
+                foreach (var fileItem in directoryInfo.GetFiles()) {
+                    if (fileItem.Name.Contains(fileNameArr[0])) {
+                        count++;
+                    }
+                }
+                fileName = fileNameArr[0] + $"({count + 1})." + fileNameArr[1];
+                thumbnailUpload.SaveAs(savePath + fileName);
                 //存圖
                 DateTime nowtime = DateTime.Now;
                 thumbnailUpload.SaveAs(savePath + "temp" + fileName);
@@ -558,7 +581,7 @@ namespace TayanaYachtRe.Sys
                 command.ExecuteNonQuery();
                 connection.Close();
                 //畫面渲染
-                Thumbnail.ImageUrl = "~/Tayanahtml/upload/Images/" + fileName;
+                LitThumbnail.Text = $"<img alt='Thumbnail Image' src='/Tayanahtml/upload/Images/{fileName}' class='img-thumbnail rounded mx-auto d-block' Width='161px' Height='121px'/>";
             }
             else {
                 LabUploadThumbnail.Visible = true;
@@ -573,11 +596,11 @@ namespace TayanaYachtRe.Sys
             string selNewsDate = Calendar1.SelectedDate.ToString("yyyy-M-dd");
             //更新新聞簡介內容
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sql = "UPDATE News SET summary = @summary WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sql = "UPDATE News SET summary = @summary WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             SqlCommand command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@summary", summaryTbox.Text);
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();
@@ -604,13 +627,13 @@ namespace TayanaYachtRe.Sys
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
             //2.sql語法
-            string sql = "UPDATE News SET newsContentHtml = @newsContentHtml WHERE dateTitle = @dateTitle AND headline = @headline";
+            string sql = "UPDATE News SET newsContentHtml = @newsContentHtmlStr WHERE dateTitle = @selNewsDate AND headline = @selHeadlineStr";
             //3.創建command物件
             SqlCommand command = new SqlCommand(sql, connection);
             //4.參數化
-            command.Parameters.AddWithValue("@newsContentHtml", newsContentHtmlStr);
-            command.Parameters.AddWithValue("@dateTitle", selNewsDate);
-            command.Parameters.AddWithValue("@headline", selHeadlineStr);
+            command.Parameters.AddWithValue("@newsContentHtmlStr", newsContentHtmlStr);
+            command.Parameters.AddWithValue("@selNewsDate", selNewsDate);
+            command.Parameters.AddWithValue("@selHeadlineStr", selHeadlineStr);
             //5.資料庫連線開啟
             connection.Open();
             //6.執行sql (新增刪除修改)
@@ -622,8 +645,6 @@ namespace TayanaYachtRe.Sys
             UploadContentLab.Visible = true;
             UploadContentLab.Text = "*Upload Success! - " + nowtime.ToString("G");
         }
-
-
 
     }
 }

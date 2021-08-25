@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="new_list_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.new_list_Manager_Cpage" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sys/TayanaYacht_Manager_Mpage.Master" AutoEventWireup="true" CodeBehind="new_list_Manager_Cpage.aspx.cs" Inherits="TayanaYachtRe.Sys.New_list_Manager_Cpage" MaintainScrollPositionOnPostback="True" %>
 
 <%@ Register Assembly="CKEditor.NET" Namespace="CKEditor.NET" TagPrefix="CKEditor" %>
 
@@ -54,7 +54,7 @@
         <!-- Add News End -->
 
         <!-- Cover Content Start -->
-        <div ID="CoverList" class="col-md-12 col-xl-4" runat="server">
+        <div ID="CoverList" class="col-md-12 col-xl-4" runat="server" visible="False">
             <div class="card project-task">
                 <div class="card-header">
                     <div class="card-header-left ">
@@ -73,7 +73,7 @@
                 <div class="card-block p-b-10">
                     <div class="table-responsive">
                         <h6>Thumbnail :</h6>
-                        <asp:Image ID="Thumbnail" runat="server" alt="Thumbnail Image" class="img-thumbnail rounded mx-auto d-block" Width="161px" Height="121px" />
+                        <asp:Literal ID="LitThumbnail" runat="server"></asp:Literal>
                         <asp:Label ID="LabUploadThumbnail" runat="server" Text="*Upload Success!" ForeColor="green" class="d-flex justify-content-center" Visible="False"></asp:Label>
                         <div class="input-group my-3">
                             <asp:FileUpload ID="thumbnailUpload" runat="server" class="btn btn-outline-primary btn-block" />
@@ -95,7 +95,7 @@
 <hr />
 <!-- News Content Start -->
 <!-- Content Text Start -->
-<div ID="NewsContent" class="page-body mt-5" runat="server">
+<div ID="NewsContent" class="page-body mt-5" runat="server" visible="False">
     <div class="row">
         <div class="col-md-12 col-xl-8">
             <div class="card project-task">

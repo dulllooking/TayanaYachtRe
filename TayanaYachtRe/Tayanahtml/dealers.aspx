@@ -25,27 +25,29 @@
   <link href="css/pagination.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <form runat="server" name="aspnetForm" method="post" action="dealers.html" id="aspnetForm">
+    <form runat="server" name="aspnetForm" method="post" action="../Tayanahtml/dealers.aspx" id="aspnetForm">
       <div class="contain">
         <div class="sub">
           <p>
-            <a href="index.aspx">Home</a>
+            <a href="../Tayanahtml/index.aspx">Home</a>
           </p>
         </div>
         <!--------------------------------選單開始---------------------------------------------------->
-        <div id="logol"><a href="index.aspx"><img src="<%= Page.ResolveUrl("images/logo001.gif") %>" alt="Tayana" /></a></div>
+        <div id="logol"><a href="../Tayanahtml/index.aspx">
+            <img src="<%= VirtualPathUtility.ToAbsolute("~/Tayanahtml/images/logo001.gif") %>" alt="Tayana" /></a></div>
         <div class="menu">
           <ul>
-            <li class="menuli01"><a href="Yachts_OverView.aspx">Yachts</a></li>
-            <li class="menuli02"><a href="new_list.aspx">NEWS</a></li>
-            <li class="menuli03"><a href="compan.aspx">COMPANY</a></li>
-            <li class="menuli04"><a href="dealers.aspx">DEALERS</a></li>
-            <li class="menuli05"><a href="contact.aspx">CONTACT</a></li>
+            <li class="menuli01"><a href="../Tayanahtml/Yachts_OverView.aspx">Yachts</a></li>
+            <li class="menuli02"><a href="../Tayanahtml/new_list.aspx">NEWS</a></li>
+            <li class="menuli03"><a href="../Tayanahtml/compan.aspx">COMPANY</a></li>
+            <li class="menuli04"><a href="../Tayanahtml/dealers.aspx">DEALERS</a></li>
+            <li class="menuli05"><a href="../Tayanahtml/contact.aspx">CONTACT</a></li>
           </ul>
         </div>
         <!--------------------------------選單開始結束---------------------------------------------------->
         <!--遮罩-->
-        <div class="bannermasks"><img src="<%= Page.ResolveUrl("images/DEALERS.jpg") %>" alt="&quot;&quot;" width="967" height="371" /></div>
+        <div class="bannermasks">
+            <img src="../Tayanahtml/images/DEALERS.jpg" alt="&quot;&quot;" width="967px" height="371px" /></div>
         <!--遮罩結束-->
         <!--<div id="buttom01"><a href="#"><img src="images/buttom01.gif" alt="next" /></a></div>-->
         <!--小圖開始-->
@@ -93,15 +95,12 @@
         </div>
         <!--------------------------------左邊選單結束---------------------------------------------------->
         <!--------------------------------右邊選單開始---------------------------------------------------->
-        <div id="crumb"><a href="index.aspx">Home</a> >> <a href="#">Dealers </a> >> <a href="#"><span
-                class="on1">
-            <asp:Label ID="LabLink" runat="server" Text="USA"></asp:Label>
-        </span></a></div>
+        <div id="crumb"><a href="../Tayanahtml/index.aspx">Home</a> >> <a href="#">Dealers </a> >> <a href="#"><span
+              class="on1" id="LabLink" runat="server">USA</span></a></div>
         <div class="right">
             <div class="right1">
             <div class="title">
-                <asp:Literal ID="LitTiTle" runat="server"></asp:Literal>
-            </div>
+                <span id="LitTitle" runat="server">USA</span></div>
             <!--------------------------------內容開始---------------------------------------------------->
             <div class="box2_list">
                 <ul>

@@ -19,7 +19,6 @@ namespace TayanaYachtRe.Tayanahtml
             //取得目前的時間，只顯示日期前的新聞
             DateTime nowTime = DateTime.Now;
             string nowDate = nowTime.ToString("yyyy-MM-dd");
-            StringBuilder newListHtml = new StringBuilder();
 
             //1.連線資料庫
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
@@ -34,7 +33,7 @@ namespace TayanaYachtRe.Tayanahtml
 
             //3.設定頁面參數屬性
             //設定控制項參數: 一頁幾筆資料
-            WebUserControl_Page.limit = 6;
+            WebUserControl_Page.limit = 5;
             //設定控制項參數: 作用頁面完整網頁名稱
             WebUserControl_Page.targetPage = "new_list.aspx";
 
@@ -45,9 +44,9 @@ namespace TayanaYachtRe.Tayanahtml
 
             //5.建立計算資料筆數的 SQL 語法
             //算出我們要秀的資料數
-            string sql_countTotal = "SELECT COUNT(id) FROM News WHERE dateTitle <= @dateTitle";
+            string sql_countTotal = "SELECT COUNT(id) FROM News WHERE dateTitle <= @nowDate";
             SqlCommand commandForTotal = new SqlCommand(sql_countTotal, connection);
-            commandForTotal.Parameters.AddWithValue("@dateTitle", nowDate); //只秀當天及之前的資料
+            commandForTotal.Parameters.AddWithValue("@nowDate", nowDate); //只秀當天及之前的資料
 
             //6.將取得的資料數設定給參數 count
             connection.Open();
@@ -64,12 +63,15 @@ namespace TayanaYachtRe.Tayanahtml
             WebUserControl_Page.showPageControls();
 
             //9.將原始資料表的 SQL 語法使用 CTE 暫存表改寫，並使用 ROW_NUMBER() 函式製作資料項流水號 rowindex
-            // SQL 用 CTE暫存表 + ROW_NUMBER 去生出我的流水號 rowindex 後以流水號為條件來查詢暫存表
-            string sql = $"WITH temp AS (SELECT ROW_NUMBER() OVER (ORDER BY dateTitle DESC) AS rowindex, * FROM News WHERE dateTitle <= @dateTitle) SELECT * FROM temp WHERE rowindex >= {floor} AND rowindex <= {ceiling}";
+            // SQL 用 CTE 暫存表 + ROW_NUMBER 去生出我的流水號 rowindex 後以流水號為條件來查詢暫存表
+            // 排序先用 isTop 後用 dateTitle 產生 TOP News 置頂效果
+            string sql = $"WITH temp AS (SELECT ROW_NUMBER() OVER (ORDER BY isTop DESC, dateTitle DESC) AS rowindex, * FROM News WHERE dateTitle <= @nowDate) SELECT * FROM temp WHERE rowindex >= {floor} AND rowindex <= {ceiling}";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@dateTitle", nowDate);
+            command.Parameters.AddWithValue("@nowDate", nowDate);
+
             //10.取得每頁的新聞列表資料製作成 HTML 內容
             connection.Open();
+            StringBuilder newListHtml = new StringBuilder();
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read()) {
                 string idStr = reader["id"].ToString();
@@ -84,8 +86,10 @@ namespace TayanaYachtRe.Tayanahtml
                 if (isTopStr.Equals("True")) {
                     displayStr = "inline-block";
                 }
-                newListHtml.Append($"<li><div class='list01'><ul><li><div class='news01'><img src='images/new_top01.png' alt='&quot;&quot;' style='display: {displayStr};position: absolute;z-index: 5;'/><div class='news02p1' style='margin: 0px;border-width: 0px;padding: 0px;' ><p>" +
-                    $"<img id='ctl00_ContentPlaceHolder1_Repeater1_ctl{idStr}_Image1' src='{thumbnailPathStr}' style='border-width: 0px;position: absolute;z-index: 1;' width='161px' height='121px' />" +
+                newListHtml.Append($"<li><div class='list01'><ul><li><div class='news01'>" +
+                    $"<img src='images/new_top01.png' alt='&quot;&quot;' style='display: {displayStr};position: absolute;z-index: 5;'/>" +
+                    $"<div class='news02p1' style='margin: 0px;border-width: 0px;padding: 0px;' ><p>" +
+                    $"<img id='thumbnail_Image{idStr}' src='upload/Images/{thumbnailPathStr}' style='border-width: 0px;position: absolute;z-index: 1;' width='161px' height='121px' />" +
                     $"</p></div></li><li><span>{dateTitleStr}</span><br />" +
                     $"<a href='new_view.aspx?id={guidStr}'>{headlineStr} </a></li><br />" +
                     $"<li>{summaryStr} </li></ul></div></li>");

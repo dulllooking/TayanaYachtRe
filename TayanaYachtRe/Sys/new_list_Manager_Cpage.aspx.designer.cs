@@ -11,7 +11,7 @@ namespace TayanaYachtRe.Sys
 {
 
 
-    public partial class new_list_Manager_Cpage
+    public partial class New_list_Manager_Cpage
     {
 
         /// <summary>
@@ -87,13 +87,13 @@ namespace TayanaYachtRe.Sys
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl CoverList;
 
         /// <summary>
-        /// Thumbnail 控制項。
+        /// LitThumbnail 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Image Thumbnail;
+        protected global::System.Web.UI.WebControls.Literal LitThumbnail;
 
         /// <summary>
         /// LabUploadThumbnail 控制項。

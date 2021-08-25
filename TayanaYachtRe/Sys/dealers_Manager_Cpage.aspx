@@ -36,7 +36,7 @@
                         <div class="input-group my-3" style="left: 0px; top: 4px">
                           <asp:TextBox ID="TBoxAddArea" runat="server" type="text" class="form-control" placeholder="Enter area name" ></asp:TextBox>
                           <div class="input-group-append">
-                            <asp:Button ID="BtnAddArea" runat="server" Text="Add" class="btn btn-outline-primary" OnClick="BtnAddArea_Click"/>
+                            <asp:Button ID="BtnAddArea" runat="server" Text="Add" class="btn btn-outline-primary btn-pill" OnClick="BtnAddArea_Click"/>
                           </div>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
         <!-- Add Area End -->
 
         <!-- Dealer List Start -->
-        <div ID="DealerList" class="col-md-12 col-xl-7" runat="server">
+        <div ID="DealerList" class="col-md-12 col-xl-7" runat="server" visible="False">
             <div class="card project-task">
                 <div class="card-header">
                     <div class="card-header-left ">
@@ -67,7 +67,7 @@
                         <h6>Thumbnail :</h6>
                         <div class="border rounded" style="padding: 5px; width: 221px; height: 160px; margin-right: auto; margin-left: auto;">
                             <p style="overflow: hidden; width: 209px; height: 148px;">
-                                <asp:Image ID="Thumbnail" runat="server" alt="Thumbnail Image" class="d-block" Width="209px" />
+                                <asp:Literal ID="LiteralImg" runat="server"></asp:Literal>
                             </p>
                         </div>
                         <asp:Label ID="LabUploadImg" runat="server" Text="*Upload Success!" ForeColor="green" class="d-flex justify-content-center" Visible="False"></asp:Label>
@@ -86,89 +86,89 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Country : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxCountry" runat="server" type="text" class="form-control" ReadOnly="True"></asp:TextBox>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Area : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxArea" runat="server" type="text" class="form-control" ReadOnly="True"></asp:TextBox>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Image : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxImage" runat="server" type="text" class="form-control" ReadOnly="True"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Name : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxName" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Contact : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxContact" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Address : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxAddress" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Tel : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxTel" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Fax : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxFax" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Email : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxEmail" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="table-info">
+                                    <th>
                                         <p class="d-inline-block m-r-20">Link : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxLink" runat="server" type="text" class="form-control"></asp:TextBox>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <th>
                                         <p class="d-inline-block m-r-20">Creation Date : </p>
-                                    </td>
+                                    </th>
                                     <td>
                                         <asp:TextBox ID="TBoxDate" runat="server" type="text" class="form-control" ReadOnly="True"></asp:TextBox>
                                     </td>
@@ -176,12 +176,12 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td>
-                                        <asp:Label ID="LabUpdateDealerList" runat="server" Text="Click for Update : " class="font-weight-bold"></asp:Label>
-                                    </td>
+                                    <th>
+                                        <asp:Label ID="LabUpdateDealerList" runat="server" Text="Click for Update : " ></asp:Label>
+                                    </th>
                                     <td>
                                         <asp:Button ID="BtnUpdateDealerList" runat="server" Text="Update Dealer List Value" class="btn btn-outline-primary btn-block" OnClick="BtnUpdateDealerList_Click"/>
-                                        <asp:Label ID="UpdateDealerListLab" runat="server" Text="*Upload Success!" ForeColor="green" class="d-flex justify-content-center"></asp:Label>
+                                        <asp:Label ID="UpdateDealerListLab" runat="server" Text="*Upload Success!" ForeColor="green" class="d-flex justify-content-center" Visible="False"></asp:Label>
                                     </td>
                                 </tr>
                             </tfoot>
@@ -251,10 +251,10 @@
                         <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" DataKeyNames="id" DataSourceID="SqlDataSource1" BackColor="White" BorderColor="#CCCCCC" BorderStyle="None" BorderWidth="1px" CellPadding="3" Width="100%" OnRowDeleted="DeltedCountry">
                             <Columns>
                                 <asp:CommandField ButtonType="Button" CancelText="Cancel" DeleteText="Delete" EditText="Edit" HeaderText="Edit" InsertText="Insert" NewText="New" SelectText="Select" ShowEditButton="True"  ControlStyle-CssClass='btn btn-primary btn-block' ControlStyle-BorderColor="#66CCFF" ControlStyle-BorderStyle="Solid" ControlStyle-BorderWidth="1px" ControlStyle-ForeColor="White" >
-                                <ControlStyle BorderColor="#66CCFF" BorderWidth="1px" BorderStyle="Solid" CssClass="btn btn-primary btn-block" ForeColor="White"></ControlStyle>
+                                    <ControlStyle BorderColor="#66CCFF" BorderWidth="1px" BorderStyle="Solid" CssClass="btn btn-primary btn-block" ForeColor="White"></ControlStyle>
                                 </asp:CommandField>
                                 <asp:BoundField DataField="id" HeaderText="ID Number" InsertVisible="False" ReadOnly="True" SortExpression="id" >
-                                <ItemStyle HorizontalAlign="Center" />
+                                    <ItemStyle HorizontalAlign="Center" />
                                 </asp:BoundField>
                                 <asp:BoundField DataField="countrySort" HeaderText="Country Name" SortExpression="countrySort" />
                                 <asp:BoundField DataField="initDate" HeaderText="Creation Date" SortExpression="initDate" ReadOnly="True" InsertVisible="False" />

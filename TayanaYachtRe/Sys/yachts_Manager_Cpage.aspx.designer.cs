@@ -33,40 +33,40 @@ namespace TayanaYachtRe.Sys
         protected global::System.Web.UI.WebControls.SqlDataSource SqlDataSource1;
 
         /// <summary>
-        /// imageUploadH 控制項。
+        /// imageUpload 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload imageUploadH;
+        protected global::System.Web.UI.WebControls.FileUpload imageUpload;
 
         /// <summary>
-        /// UploadHBtn 控制項。
+        /// UploadBtn 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button UploadHBtn;
+        protected global::System.Web.UI.WebControls.Button UploadBtn;
 
         /// <summary>
-        /// RadioButtonListH 控制項。
+        /// RadioButtonList 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonListH;
+        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList;
 
         /// <summary>
-        /// DelHImageBtn 控制項。
+        /// DelImageBtn 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button DelHImageBtn;
+        protected global::System.Web.UI.WebControls.Button DelImageBtn;
 
         /// <summary>
         /// CBoxNewDesign 控制項。

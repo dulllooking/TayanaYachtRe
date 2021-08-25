@@ -10,27 +10,25 @@ namespace TayanaYachtRe.Tayanahtml
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack) {
+                getCountryID(); //取得國家 id
                 loadLeftMenu();
                 loadDealerList();
             }
         }
 
-        private void loadDealerList()
+        private void getCountryID()
         {
             //取得網址傳值的 id 內容
             string urlIDStr = Request.QueryString["id"];
-            //如果是直接連到這頁時的預設 id (用公司主力 USA 的 id)
-            if (string.IsNullOrEmpty(urlIDStr)) {
-                urlIDStr = "1";
-            }
 
-            //如果是用短網址連入則用短網址 shortUrl 參數內容來判斷 ID
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            //如果是用短網址連入則用短網址 shortUrl 參數內容的國家名稱來判斷 ID
             if (Page.RouteData.Values.Count > 0) {
-                string urlStr = Page.RouteData.Values["shortUrl"].ToString();
-                string sqlID = "SELECT * FROM CountrySort WHERE countrySort = @countrySort";
+                //取得短網址參數內容的國家名稱
+                string urlCountryStr = Page.RouteData.Values["shortUrl"].ToString();
+                string sqlID = "SELECT id FROM CountrySort WHERE countrySort = @urlCountryStr";
                 SqlCommand commandID = new SqlCommand(sqlID, connection);
-                commandID.Parameters.AddWithValue("@countrySort", urlStr);
+                commandID.Parameters.AddWithValue("@urlCountryStr", urlCountryStr);
                 connection.Open();
                 SqlDataReader readerID = commandID.ExecuteReader();
                 if (readerID.Read()) {
@@ -39,24 +37,45 @@ namespace TayanaYachtRe.Tayanahtml
                 connection.Close();
             }
 
-            //更新右側上方標題跟連結文字
-            string sql = "SELECT countrySort FROM CountrySort WHERE id = @id";
+            //如無網址傳值則設為第一筆國家名稱 id
+            if (string.IsNullOrEmpty(urlIDStr)) {
+                string sql = "SELECT TOP 1 id FROM CountrySort";
+                SqlCommand command = new SqlCommand(sql, connection);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read()) {
+                    urlIDStr = reader["id"].ToString();
+                }
+                connection.Close();
+            }
+
+            //將 id 存入 Session 使用
+            Session["id"] = urlIDStr;
+        }
+
+        private void loadDealerList()
+        {
+            //取得 Session 儲存 id，Session 物件需轉回字串
+            string countryIDStr = Session["id"].ToString();
+
+            SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
+            string sql = "SELECT countrySort FROM CountrySort WHERE id = @countryIDStr";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@id", urlIDStr);
+            command.Parameters.AddWithValue("@countryIDStr", countryIDStr);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
             if (reader.Read()) {
-                string labStr = reader["countrySort"].ToString();
-                LabLink.Text = labStr;
-                LitTiTle.Text = $"<span>{labStr}</span>";
+                string countryStr = reader["countrySort"].ToString();
+                LabLink.InnerText = countryStr;
+                LitTitle.InnerText = countryStr;
             }
             connection.Close();
 
-            //讀取內容
+            //依 country id 取得代理商資料
             StringBuilder dealerListHtml = new StringBuilder();
-            string sqlArea = "SELECT * FROM Dealers WHERE country_ID = @country_ID";
+            string sqlArea = "SELECT * FROM Dealers WHERE country_ID = @countryIDStr";
             SqlCommand commandArea = new SqlCommand(sqlArea, connection);
-            commandArea.Parameters.AddWithValue("@country_ID", urlIDStr);
+            commandArea.Parameters.AddWithValue("@countryIDStr", countryIDStr);
             connection.Open();
             SqlDataReader readerArea = commandArea.ExecuteReader();
             while (readerArea.Read()) {
@@ -71,7 +90,7 @@ namespace TayanaYachtRe.Tayanahtml
                 string emailStr = readerArea["email"].ToString();
                 string linkStr = readerArea["link"].ToString();
                 dealerListHtml.Append("<li><div class='list02'><ul><li class='list02li'><div>" +
-            $"<p><img id='ctl0{idStr}_Image{idStr}' src='../Tayanahtml/{imgPathStr}' style='border-width:0px;' /> </p></div></li>" +
+            $"<p><img id='Image{idStr}' src='../Tayanahtml/upload/Images/{imgPathStr}' style='border-width:0px;' Width='209px' /> </p></div></li>" +
             $"<li class='list02li02'> <span>{areaStr}</span><br />");
                 if (!string.IsNullOrEmpty(nameStr)) {
                     dealerListHtml.Append($"{nameStr}<br />");

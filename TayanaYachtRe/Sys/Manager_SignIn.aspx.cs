@@ -35,7 +35,7 @@ namespace TayanaYachtRe.Sys
         private bool VerifyHash(string password, byte[] salt, byte[] hash)
         {
             var newHash = HashPassword(password, salt);
-            return hash.SequenceEqual(newHash); // LINEQ
+            return hash.SequenceEqual(newHash); // LinQ
         }
 
         protected void Button1_Click(object sender, EventArgs e)
@@ -67,7 +67,8 @@ namespace TayanaYachtRe.Sys
                 bool success = VerifyHash(password, salt, hash);
 
                 if (success) {
-                    //宣告驗證票要夾帶的資料 (用;區隔)
+                    //宣告驗證票要夾帶的資料 (先用;區隔，取出時再用;切)
+                    //也可以將之資料庫物件序列化轉成JSON字串，取出時反序列化使用
                     string userData = dataTable.Rows[0]["maxPower"].ToString() + ";" + dataTable.Rows[0]["account"].ToString() + ";" + dataTable.Rows[0]["name"].ToString() + ";" + dataTable.Rows[0]["email"].ToString();
                     //設定驗證票(夾帶資料，cookie命名) //需額外引入using System.Web.Configuration;
                     SetAuthenTicket(userData, TextBox1.Text);

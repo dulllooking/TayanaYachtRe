@@ -18,7 +18,7 @@ namespace TayanaYachtRe.Tayanahtml
         {
             //從資料庫取資料
             SqlConnection connection = new SqlConnection(WebConfigurationManager.ConnectionStrings["TayanaYachtConnectionString"].ConnectionString);
-            string sqlCountry = "SELECT aboutUsHtml FROM Company";
+            string sqlCountry = "SELECT TOP 1 aboutUsHtml FROM Company";
             SqlCommand command= new SqlCommand(sqlCountry, connection);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
