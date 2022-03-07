@@ -14,7 +14,6 @@ namespace TayanaYachtRe.Sys
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            
         }
 
         // Argon2 驗證加密密碼
@@ -31,6 +30,7 @@ namespace TayanaYachtRe.Sys
 
             return argon2.GetBytes(16);
         }
+
         //驗證
         private bool VerifyHash(string password, byte[] salt, byte[] hash)
         {
